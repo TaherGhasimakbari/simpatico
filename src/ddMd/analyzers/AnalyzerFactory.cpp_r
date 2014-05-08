@@ -18,7 +18,10 @@
 #include "OutputEnergy.h"
 #include "OutputPressure.h"
 #include "OutputStressTensor.h"
+#include "StressAutoCorrelation.h"
 #include "VirialStressTensorAverage.h"
+#include "ExternalPotentialAverage.h"
+#include "PairEnergyAverage.h"
 #include "OutputBoxdim.h"
 #include "OutputTemperature.h"
 #include "OutputPairEnergies.h"
@@ -64,10 +67,19 @@ namespace DdMd
          ptr = new OutputPressure(simulation());
       } else
       if (className == "OutputStressTensor") {
-         ptr = new OutputPressure(simulation());
+         ptr = new OutputStressTensor(simulation());
+      } else
+      if (className == "StressAutoCorrealtion") {
+         ptr = new StressAutoCorrelation(simulation());
       } else
       if (className == "VirialStressTensorAverage") {
          ptr = new VirialStressTensorAverage(simulation());
+      } else
+      if (className == "ExternalPotentialAverage") {
+         ptr = new ExternalPotentialAverage(simulation());
+      } else
+      if (className == "PairEnergyAverage") {
+         ptr = new PairEnergyAverage(simulation());
       } else
       if (className == "OutputBoxdim") {
          ptr = new OutputBoxdim(simulation());
