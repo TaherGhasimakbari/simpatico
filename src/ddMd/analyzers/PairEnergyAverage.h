@@ -37,8 +37,7 @@ namespace DdMd
       /**
       * Destructor.
       */
-      virtual ~PairEnergyAverage()
-      {} 
+      virtual ~PairEnergyAverage();
    
       /**
       * Read dumpPrefix and interval.
@@ -83,19 +82,19 @@ namespace DdMd
    private:
 
       /// Output file stream.
-      std::ofstream outputFile_;
+      std::ofstream  outputFile_;
 
       /// Pairs!
       DArray<int>  pairs_;
 
-      /// Number of samples per block average output.
-      int nSamplePerBlock_;
-
       /// Average object - statistical accumulator
-      Average  accumulator_;
+      Average  *accumulator_;
+
+      /// Number of samples per block average output.
+      int  nSamplePerBlock_;
 
       /// Has readParam been called?
-      long    isInitialized_;
+      bool  isInitialized_;
    
    };
 

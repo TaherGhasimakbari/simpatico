@@ -30,10 +30,20 @@ namespace DdMd
     : Analyzer(simulation),
       outputFile_(),
       pairs_(),
-      accumulator_(),
+      accumulator_(NULL),
       nSamplePerBlock_(1),
       isInitialized_(false)
    {  setClassName("PairEnergyAverage"); }
+
+   /*
+   * Destructor.
+   */
+   PairEnergyAverage::~PairEnergyAverage() 
+   {
+      if(simulation().domain().isMaster()) {
+         delete accumulator_;
+      }   
+   }
 
    /*
    * Read interval and outputFileName. 
@@ -45,13 +55,12 @@ namespace DdMd
 
       pairs_.allocate(2);
       readDArray<int>(in, "pairs", pairs_, 2);
-
+      
       read<int>(in,"nSamplePerBlock", nSamplePerBlock_);
-      accumulator_.setNSamplePerBlock(nSamplePerBlock_);
-      accumulator_.clear();
-
-      if (sys.domain().isMaster()) {
-      simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
+     
+      if(simulation().domain().isMaster()) {
+         accumulator_ = new Average;
+         accumulator_->setNSamplePerBlock(nSamplePerBlock_);
       }
 
       isInitialized_ = true;
@@ -65,9 +74,13 @@ namespace DdMd
       loadInterval(ar);
       MpiLoader<Serializable::IArchive> loader(*this, ar);
       loader.load(nSamplePerBlock_);
-      ar & accumulator_;
 
-      if (nSamplePerBlock_ != accumulator_.nSamplePerBlock()) {
+      if (simulation().domain().isMaster()) {
+         accumulator_ = new Average;
+         accumulator_->loadParameters(ar);
+      }
+
+      if (nSamplePerBlock_ != accumulator_->nSamplePerBlock()) {
          UTIL_THROW("Inconsistent values of nSamplePerBlock");
       }
 
@@ -78,13 +91,25 @@ namespace DdMd
    * Save internal state to an archive.
    */
    void PairEnergyAverage::save(Serializable::OArchive &ar)
-   { ar & *this; }
+   {       
+      saveInterval(ar);
+      saveOutputFileName(ar);
+
+      if (simulation().domain().isMaster()){
+         ar << *accumulator_;
+      }
+ 
+   }
 
    /*
    * Reset nSample.
    */
    void PairEnergyAverage::clear() 
-   {  accumulator_.clear();  }
+   {  
+      if (simulation().domain().isMaster()){
+         accumulator_->clear();
+      } 
+   }
 
    /*
    * Dump configuration to file
@@ -92,19 +117,16 @@ namespace DdMd
    void PairEnergyAverage::sample(long iStep) 
    {
       if (isAtInterval(iStep))  {
-         Simulation& sys = simulation();
-         sys.computePairEnergies();
-         if (sys.domain().isMaster()) {
-            DMatrix<double> pair = sys.pairEnergies();
+         simulation().computePairEnergies();
+         if (simulation().domain().isMaster()) {
+            DMatrix<double> pair = simulation().pairEnergies();
             for (int i = 0; i < simulation().nAtomType(); ++i){
                for (int j = 0; j < simulation().nAtomType(); ++j){
                   pair(i,j) = 0.5*( pair(i,j)+pair(j,i) );
                   pair(j,i) = pair(i,j);
                }
             }
-
-            outputFile_ << Dbl(pair(pairs_[0],pairs_[1]), 15);
-            accumulator_.sample(pair(pairs_[0],pairs_[1]));
+            accumulator_->sample(pair(pairs_[0],pairs_[1]));
          }
       }
    }
@@ -114,18 +136,15 @@ namespace DdMd
    */
    void PairEnergyAverage::output()
    {
-      Simulation& sys = simulation();
-      if (sys.domain().isMaster()) {
-      outputFile_.close();
-      simulation().fileMaster().openOutputFile(outputFileName(".prm"), outputFile_);
-      ParamComposite::writeParam(outputFile_);
-      outputFile_.close();
+      if (simulation().domain().isMaster()) {
+         simulation().fileMaster().openOutputFile(outputFileName(".prm"), outputFile_);
+         ParamComposite::writeParam(outputFile_);
+         outputFile_.close();
       
-      simulation().fileMaster().openOutputFile(outputFileName(".ave"), outputFile_);
-      accumulator_.output(outputFile_);
-      outputFile_.close();
+         simulation().fileMaster().openOutputFile(outputFileName(".ave"), outputFile_);
+         accumulator_->output(outputFile_);
+         outputFile_.close();
       }
    }
-
 }
 #endif
