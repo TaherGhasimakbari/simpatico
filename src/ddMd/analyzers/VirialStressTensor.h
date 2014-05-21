@@ -1,5 +1,5 @@
-#ifndef DDMD_STRESS_TENSOR_AUTO_CORRELATION_H
-#define DDMD_STRESS_TENSOR_AUTO_CORRELATION_H
+#ifndef DDMD_VIRIAL_STRESS_TENSOR_H
+#define DDMD_VIRIAL_STRESS_TENSOR_H
 
 /*
 * Simpatico - Simulation Package for Polymeric and Molecular Liquids
@@ -12,7 +12,7 @@
 #include <ddMd/simulation/Simulation.h>
 #include <util/mpi/MpiLoader.h>
 #include <util/space/Tensor.h>
-#include <util/accumulators/AutoCorrArray.h>     // member template
+#include <util/accumulators/Average.h>
 
 namespace DdMd
 {
@@ -24,7 +24,7 @@ namespace DdMd
    *
    * \ingroup DdMd_Analyzer_Module
    */
-   class StressAutoCorrelation : public Analyzer
+   class VirialStressTensor : public Analyzer
    {
    
    public:
@@ -34,12 +34,12 @@ namespace DdMd
       *
       * \param simulation parent Simulation object. 
       */
-      StressAutoCorrelation(Simulation& simulation);
+      VirialStressTensor(Simulation& simulation);
    
       /**
       * Destructor.
       */
-      virtual ~StressAutoCorrelation()
+      virtual ~VirialStressTensor()
       {} 
    
       /**
@@ -67,11 +67,6 @@ namespace DdMd
       * Clear nSample counter.
       */
       virtual void clear();
-
-      /**
-      * Setup accumulator!
-      */
-      virtual void setup();
   
       /**
       * Sample virial stress to accumulators
@@ -80,27 +75,17 @@ namespace DdMd
       */
       virtual void sample(long iStep);
 
-      /**
-      * Dump configuration to file
-      *
-      * \param iStep MD step index
-      */
-      virtual void output();
-
    private:
- 
-      /// Output file stream
-      std::ofstream  outputFile_;
-      
-      /// Statistical accumulator.
-      AutoCorrArray<double, double>  accumulator_;
 
-      /// Number of samples per block average output
-      int  capacity_;
+      ///Output file stream
+      std::ofstream outputFile_;
+   
+      /// Number of samples
+      int   nSample_;
 
       /// Has readParam been called?
-      long  isInitialized_;
-   
+      bool  isInitialized_;
+
    };
 
 }
