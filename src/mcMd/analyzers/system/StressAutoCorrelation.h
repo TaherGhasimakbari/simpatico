@@ -9,8 +9,6 @@
 */
 
 #include <mcMd/analyzers/SystemAnalyzer.h>
-//#include <mcMd/simulation/System.h>
-//#include <util/mpi/MpiLoader.h>
 #include <util/space/Tensor.h>
 #include <util/ensembles/EnergyEnsemble.h>
 #include <util/accumulators/AutoCorrArray.h>     // member template
@@ -75,11 +73,6 @@ namespace McMd
       void serialize(Archive& ar, const unsigned int version);
   
       /**
-      * Clear nSample counter.
-      */
-      virtual void clear();
-
-      /**
       * Setup accumulator!
       */
       virtual void setup();
@@ -91,7 +84,6 @@ namespace McMd
       */
       virtual void sample(long iStep);
 
-      virtual void Test(long iStep);
       /**
       * Dump configuration to file
       *
