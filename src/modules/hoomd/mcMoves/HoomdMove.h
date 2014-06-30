@@ -22,7 +22,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <boost/hoomd_config.h>       // HOOMD
+#include <hoomd/hoomd_config.h>       // HOOMD
 #include <hoomd/SystemDefinition.h>
 #include <hoomd/System.h>
 #include <hoomd/ExecutionConfiguration.h>
