@@ -26,7 +26,7 @@ Simulation{
   pairStyle          LJPair
   bondStyle          HarmonicBond
   maskedPairPolicy   maskBonded
-  reverseUpdateFlag   0
+  reverseUpdateFlag  1
   PairPotential{
     epsilon          1.0
     sigma            1.0
@@ -63,10 +63,23 @@ Simulation{
      }
 
      StressAutoCorrelation{
-        interval             1
-        outputFileName  stress
-        capacity         10000
+        interval            10
+        outputFileName  Stress
+        capacity          1000
+     }
+
+     SStressAutoCorrelation{
+        interval            10
+        outputFileName SStress
+        capacity          1000
      }
   }
 }
 
+     WriteConfig{
+        interval          2000
+        outputFileName  config
+     }
+
+  nAngleType         0
+  hasExternal        0

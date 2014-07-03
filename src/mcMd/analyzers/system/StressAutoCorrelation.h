@@ -140,6 +140,7 @@ namespace McMd
       read(in,"capacity", capacity_);
 
       accumulator_.setParam(9, capacity_);
+      accumulator_.clear();
 
       isInitialized_ = true;
    }

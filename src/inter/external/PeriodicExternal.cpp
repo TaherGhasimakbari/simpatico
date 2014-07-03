@@ -48,10 +48,10 @@ namespace Inter
       for (int i=0; i < nAtomType_; ++i) {
         prefactor_[i] = other.prefactor_[i];
       }
-      waveVectors_.allocate(nWaveVectors_);
+      waveIntVectors_.allocate(nWaveVectors_);
       for (int j=0; j < Dimension; ++j) {
         for (int i=0; i < nWaveVectors_; ++i) {
-          waveVectors_[i][j] = other.waveVectors_[i][j];
+          waveIntVectors_[i][j] = other.waveIntVectors_[i][j];
         }
       }
       phases_.allocate(nWaveVectors_);
@@ -81,7 +81,7 @@ namespace Inter
       }
       for (int j=0; j < Dimension; ++j) {
         for (int i=0; i < nWaveVectors_; ++i) {
-          waveVectors_[i][j] = other.waveVectors_[i][j];
+          waveIntVectors_[i][j] = other.waveIntVectors_[i][j];
         }
       }
       phases_.allocate(nWaveVectors_);
@@ -145,8 +145,8 @@ namespace Inter
 
       read<int>(in, "nWaveVectors", nWaveVectors_);
       read<double>(in, "C", C_);
-      waveVectors_.allocate(nWaveVectors_);
-      readDArray<Vector>(in, "waveVectors", waveVectors_, nWaveVectors_);
+      waveIntVectors_.allocate(nWaveVectors_);
+      readDArray<IntVector>(in, "waveIntVectors", waveIntVectors_, nWaveVectors_);
 
       phases_.allocate(nWaveVectors_);
       readDArray<double>(in, "phases", phases_, nWaveVectors_);
@@ -170,8 +170,8 @@ namespace Inter
       loadDArray<double>(ar, "prefactor", prefactor_, nAtomType_);
       loadParameter<double>(ar, "externalParameter", externalParameter_);
       loadParameter<double>(ar, "C", C_);
-      waveVectors_.allocate(nWaveVectors_);
-      loadDArray<Vector>(ar, "waveVectors", waveVectors_, nWaveVectors_);
+      waveIntVectors_.allocate(nWaveVectors_);
+      loadDArray<IntVector>(ar, "waveIntVectors", waveIntVectors_, nWaveVectors_);
       loadDArray<double>(ar, "phases", phases_, nWaveVectors_);
       loadParameter<Vector>(ar, "shift", shift_);
       loadParameter<double>(ar, "interfaceWidth", interfaceWidth_);
@@ -188,7 +188,7 @@ namespace Inter
       ar << prefactor_;
       ar << externalParameter_;
       ar << C_;
-      ar << waveVectors_;
+      ar << waveIntVectors_;
       ar << phases_;
       ar << shift_;
       ar << interfaceWidth_;

@@ -7,13 +7,14 @@ include $(SRC_DIR)/ddMd/configIos/sources.mk
 include $(SRC_DIR)/ddMd/potentials/sources.mk
 include $(SRC_DIR)/ddMd/integrators/sources.mk
 include $(SRC_DIR)/ddMd/analyzers/sources.mk
+include $(SRC_DIR)/ddMd/sp/sources.mk
 include $(SRC_DIR)/ddMd/misc/sources.mk
 
 ddMd_=$(ddMd_chemistry_) $(ddMd_storage_) \
     $(ddMd_communicate_) $(ddMd_neighbor_) \
     $(ddMd_simulation_) $(ddMd_configIos_) \
     $(ddMd_potentials_) $(ddMd_integrators_) \
-    $(ddMd_analyzers_) $(ddMd_misc_) 
+    $(ddMd_analyzers_) $(ddMd_sp_) $(ddMd_misc_) 
 
 ifdef DDMD_MODIFIERS
 include $(SRC_DIR)/ddMd/modifiers/sources.mk
@@ -28,7 +29,7 @@ ddMd_+= $(ddMd_user_)
 ddMd_SRCS=\
      $(addprefix $(SRC_DIR)/, $(ddMd_))
 ddMd_OBJS=\
-     $(addprefix $(OBJ_DIR)/, $(ddMd_:.cpp=.o))
+     $(addprefix $(BLD_DIR)/, $(ddMd_:.cpp=.o))
 
 $(ddMd_LIB): $(ddMd_OBJS)
 	$(AR) rcs $(ddMd_LIB) $(ddMd_OBJS)
