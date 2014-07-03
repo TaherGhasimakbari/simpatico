@@ -51,7 +51,7 @@ clean:
 veryclean:
 	make clean
 	-rm -f */*.o */*.d
-	-rm -f config.mk makefile
+	-rm -f defines.mk makefile
 
 $(MCSIM_EXE): mcSim.o $(modules_hoomd_NVCC_OBJS) $(modules_hoomd_OBJS) \
                  $(util_LIB) $(inter_LIB) $(mcMd_LIB) $(LIBS)

@@ -139,7 +139,7 @@ namespace McMd
       readOutputFileName(in);
       read(in,"capacity", capacity_);
 
-      accumulator_.setParam(6, capacity_);
+      accumulator_.setParam(9, capacity_);
 
       isInitialized_ = true;
    }
@@ -246,9 +246,6 @@ namespace McMd
       outputFile_ << "nSample         " << accumulator_.nSample() << std::endl;
       outputFile_ << std::endl;
       outputFile_ << "average   " << accumulator_.average() << std::endl;
-      outputFile_ << std::endl;
-      outputFile_ << "Format of *.dat file" << std::endl;
-      outputFile_ << "[int time in samples]  [double autocorrelation function]" << std::endl;
       outputFile_ << std::endl;
       outputFile_.close();
 
