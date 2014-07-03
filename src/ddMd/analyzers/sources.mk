@@ -20,7 +20,8 @@ ddMd_analyzers_=\
      ddMd/analyzers/ExternalEnergyAverage.cpp\
      ddMd/analyzers/TrajectoryWriter.cpp\
      ddMd/analyzers/DdMdTrajectoryWriter.cpp\
-     ddMd/analyzers/StressAutoCorrelation.cpp
+     ddMd/analyzers/StressAutoCorrelation.cpp\
+     ddMd/analyzers/SStressAutoCorrelation.cpp
 
 ddMd_analyzers_SRCS=\
      $(addprefix $(SRC_DIR)/, $(ddMd_analyzers_))
