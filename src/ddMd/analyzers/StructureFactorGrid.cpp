@@ -362,7 +362,7 @@ namespace DdMd
          outputFile_.close();
 
          // Output all structure factors to one file
-         simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
+         simulation().fileMaster().openOutputFile(outputFileName("_avg.dat"), outputFile_);
          for (i = 0; i < nStar_; ++i) {
             size = starSizes_[i];
             k = starIds_[i];

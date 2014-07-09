@@ -26,6 +26,7 @@ namespace DdMd
    */
    SStressAutoCorrelation::SStressAutoCorrelation(Simulation& simulation) 
     : Analyzer(simulation),
+      temperature_(1),
       accumulator_(),
       capacity_(-1),
       isInitialized_(false)
@@ -38,11 +39,8 @@ namespace DdMd
    {
       readInterval(in);
       readOutputFileName(in);
+      read<double>(in,"temperature", temperature_);
       read<int>(in,"capacity", capacity_);
-      // Allocate memory
-      // Autocorrelation accumulator allocation is so to work for
-      // a symmetric matrix, 6 is number of independent elements in 
-      // a symmetric matrix.
       accumulator_.setParam(capacity_);
 
       isInitialized_ = true;
@@ -115,28 +113,22 @@ namespace DdMd
    */
    void SStressAutoCorrelation::sample(long iStep) 
    {  
-      double element;
-      double pressure;
-      double temprature;
- 
-      if (isAtInterval(iStep))  {
+         double element;
+         double pressure;
          Simulation& sys = simulation();
+         double volume = sys.boundary().volume();
+
+      if (isAtInterval(iStep))  {
          sys.computeVirialStress();
          sys.computeKineticStress();
-         sys.computeKineticEnergy();
-         simulation().atomStorage().computeNAtomTotal(simulation().domain().communicator());
+         sys.atomStorage().computeNAtomTotal(sys.domain().communicator());
 
          if (sys.domain().isMaster()) {
             Tensor virial  = sys.virialStress();
             Tensor kinetic = sys.kineticStress();
             Tensor total = total.add(virial, kinetic);
-            pressure = sys.kineticPressure()+sys.virialPressure();
-            double ndof = simulation().atomStorage().nAtomTotal()*3;
-            //temprature = sys.kineticEnergy()*2.0/ndof;
-            temprature = 1;
 
-            element = (total(0,1) + total(1,0)) / 2.0 / (10.0 * temprature);
-          
+            element = sqrt(volume/temperature_) * (total(0,1) + total(1,0)) / 2.0;          
             accumulator_.sample(element);
          }
       }

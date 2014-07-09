@@ -13,6 +13,8 @@
 #include <util/mpi/MpiLoader.h>
 #include <util/space/Tensor.h>
 #include <util/accumulators/AutoCorr.h>     // member template
+#include <util/boundary/Boundary.h>
+#include <cmath>
 
 namespace DdMd
 {
@@ -92,6 +94,9 @@ namespace DdMd
       /// Output file stream
       std::ofstream  outputFile_;
       
+      /// Number of samples per block average output
+      double  temperature_;
+
       /// Statistical accumulator.
       AutoCorr<double, double>  accumulator_;
 
