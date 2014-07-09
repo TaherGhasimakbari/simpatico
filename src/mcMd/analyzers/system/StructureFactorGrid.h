@@ -126,22 +126,22 @@ namespace McMd
    private:
 
       /// Array of ids for first wavevector in each star.
-      DArray<int>  starIds_;
+      DArray<int> starIds_;
 
       /// Array of star sizes.
-      DArray<int>  starSizes_;
+      DArray<int> starSizes_;
 
       /// Maximum Miller index of wavevectors in grid.
-      int   hMax_;
+      int hMax_;
 
       /// Number of stars of symmetry related wavevectors.
-      int   nStar_;
+      int nStar_;
 
       /// Lattice system used to create stars.
-      LatticeSystem   lattice_;
+      LatticeSystem lattice_;
 
       /// Has readParam been called?
-      bool    isInitialized_;
+      bool isInitialized_;
 
       /// Log file
       std::ofstream logFile_;

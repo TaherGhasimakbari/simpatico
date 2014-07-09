@@ -92,6 +92,9 @@ namespace DdMd
       /// Output file stream
       std::ofstream  outputFile_;
       
+      /// Number of samples per block average output
+      double  temperature_;
+
       /// Statistical accumulator.
       AutoCorrArray<double, double>  accumulator_;
 
