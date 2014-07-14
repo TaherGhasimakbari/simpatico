@@ -137,15 +137,15 @@ namespace DdMd
             Tensor total = total.add(virial, kinetic);
             pressure = sys.kineticPressure()+sys.virialPressure();
 
-            elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temprature_));
-            elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temprature_));
-            elements[2] = (total(0,2) + total(2,0)) / 2.0 * sqrt(volume/(10.0 * temprature_));
+            elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temperature_));
+            elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
+            elements[2] = (total(0,2) + total(2,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
             elements[3] = elements[1];
-            elements[4] = (total(1,1) - pressure / 3.0) * sqrt(volume/(10.0 * temprature_));
-            elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temprature_));
+            elements[4] = (total(1,1) - pressure / 3.0) * sqrt(volume/(10.0 * temperature_));
+            elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature_));
             elements[6] = elements[2];
             elements[7] = elements[5];
-            elements[8] = (total(2,2) - pressure / 3.0) * sqrt(volume/(10.0 * temprature_));
+            elements[8] = (total(2,2) - pressure / 3.0) * sqrt(volume/(10.0 * temperature_));
           
             accumulator_.sample(elements);
          }
