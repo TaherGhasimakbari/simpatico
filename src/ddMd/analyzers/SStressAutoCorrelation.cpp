@@ -114,7 +114,6 @@ namespace DdMd
    void SStressAutoCorrelation::sample(long iStep) 
    {  
          double element;
-         double pressure;
          Simulation& sys = simulation();
          double volume = sys.boundary().volume();
 
