@@ -16,6 +16,7 @@
 #include "MdKineticEnergyAverage.h"
 #include "MdPressureAverage.h"
 #include "MdStressAutoCorrelation.h"
+#include "MdSStressAutoCorrelation.h"
 #include "MdIntraBondStressAutoCorr.h"
 #include "MdIntraBondTensorAutoCorr.h"
 #include "MdPairEnergyCoefficients.h"
@@ -69,6 +70,9 @@ namespace McMd
       } else 
       if (className == "MdStressAutoCorrelation") {
          ptr = new MdStressAutoCorrelation(system());
+      } else 
+      if (className == "MdSStressAutoCorrelation") {
+         ptr = new MdSStressAutoCorrelation(system());
       } 
       #ifndef INTER_NOPAIR
       else
