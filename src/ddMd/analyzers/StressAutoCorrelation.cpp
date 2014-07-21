@@ -121,7 +121,6 @@ namespace DdMd
       DArray<double> elements;
       elements.allocate(9);
       double pressure;
-      double temprature;
       double volume;
  
       if (isAtInterval(iStep))  {
@@ -135,6 +134,7 @@ namespace DdMd
             Tensor virial  = sys.virialStress();
             Tensor kinetic = sys.kineticStress();
             Tensor total = total.add(virial, kinetic);
+            volume = sys.boundary().volume();
             pressure = sys.kineticPressure()+sys.virialPressure();
 
             elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temperature_));

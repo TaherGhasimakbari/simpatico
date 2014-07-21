@@ -201,33 +201,37 @@ namespace McMd
    template <class SystemType>
    void StressAutoCorrelation<SystemType>::sample(long iStep)
    {
-      double pressure;
-      double temperature;
-      SystemType& sys=system(); 
-      sys.computeStress(pressure);
-
-      DArray<double> elements;
-      elements.allocate(9);
-
-      Tensor total;
-      Tensor virial;
-      Tensor kinetic;
-
       if (isAtInterval(iStep)){
+
+         double pressure;
+         double volume;
+         double temperature;
+
+         SystemType& sys=system(); 
+         sys.computeStress(pressure);
+         volume = sys.boundary().volume();
+
+         DArray<double> elements;
+         elements.allocate(9);
+
+         Tensor total;
+         Tensor virial;
+         Tensor kinetic;
+
          sys.computeVirialStress(total);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
          temperature = sys.energyEnsemble().temperature();
 
-         elements[0] = (total(0,0) - pressure / 3.0) / (10.0 * temperature);
-         elements[1] = (total(0,1) + total(1,0)) / 2.0 / (10.0 * temperature);
-         elements[2] = (total(0,2) + total(2,0)) / 2.0 / (10.0 * temperature);
+         elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
+         elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature));
+         elements[2] = (total(0,2) + total(2,0)) / 2.0 *sqrt(volume/(10.0 * temperature));
          elements[3] = elements[1];
-         elements[4] = (total(1,1) - pressure / 3.0) / (10.0 * temperature);
-         elements[5] = (total(1,2) + total(2,1)) / 2.0 / (10.0 * temperature);
+         elements[4] = (total(1,1) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
+         elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature));
          elements[6] = elements[2];
          elements[7] = elements[5];
-         elements[8] = (total(2,2) - pressure / 3.0) / (10.0 * temperature);
+         elements[8] = (total(2,2) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
 
          accumulator_.sample(elements);
      }
