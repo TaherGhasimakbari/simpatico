@@ -1,5 +1,5 @@
-#ifndef DDMD_STRUCTURE_FACTOR_GRID_CPP
-#define DDMD_STRUCTURE_FACTOR_GRID_CPP
+#ifndef DDMD_TSTRUCTURE_FACTOR_GRID_CPP
+#define DDMD_TSTRUCTURE_FACTOR_GRID_CPP
 
 /*
 * Simpatico - Simulation Package for Polymeric and Molecular Liquids
@@ -8,7 +8,7 @@
 * Distributed under the terms of the GNU General Public License.
 */
 
-#include "StructureFactorGrid.h"
+#include "TStructureFactorGrid.h"
 #include <ddMd/simulation/Simulation.h>
 #include <util/crystal/PointGroup.h>
 #include <util/crystal/PointSymmetry.h>
@@ -27,18 +27,17 @@ namespace DdMd
    /*
    * Constructor.
    */
-   StructureFactorGrid::StructureFactorGrid(Simulation& simulation) 
+   TStructureFactorGrid::TStructureFactorGrid(Simulation& simulation) 
     : StructureFactor(simulation),
       hMax_(0),
       nStar_(0),
-      lattice_(Triclinic),
       isInitialized_(false)
-   {  setClassName("StructureFactorGrid"); }
+   {  setClassName("TStructureFactorGrid"); }
 
    /*
    * Read parameters from file, and allocate data array.
    */
-   void StructureFactorGrid::readParameters(std::istream& in) 
+   void TStructureFactorGrid::readParameters(std::istream& in) 
    {
       nAtomType_ = simulation().nAtomType();
 
@@ -49,7 +48,6 @@ namespace DdMd
       modes_.allocate(nMode_, nAtomType_);
       readDMatrix<double>(in, "modes", modes_, nMode_, nAtomType_);
       read<int>(in, "hMax", hMax_);
-      read<LatticeSystem>(in, "lattice", lattice_);
 
       // Allocate wavevectors arrays
       nWave_     = (2*hMax_ +1 )*(2*hMax_ + 1)*(2*hMax_ + 1);
@@ -61,166 +59,56 @@ namespace DdMd
       int i, j, h, k, l, m;
       IntVector g;
 
-      // Cubic Symmetry
-      if (lattice_ == Cubic) {
-         nStar_ = (hMax_ +1 )*(hMax_ + 2)*(hMax_ + 3)/6;
-         starIds_.allocate(nStar_);
-         starSizes_.allocate(nStar_);
-   
-         // Create cubic point group
-         PointGroup group;
-         PointSymmetry a, b, c;
+      nStar_ = (2*hMax_ + 1 )*(2*hMax_ + 1)*(2*hMax_ + 1);
+      starIds_.allocate(nStar_);
+      starSizes_.allocate(nStar_);
+      // Create tetragonal point group
+      PointGroup group;
+      PointSymmetry a, b, c;
 
-         a.R(0,1) =  1;
-         a.R(1,0) =  1;
-         a.R(2,2) =  1;
-   
-         b.R(0,0) = -1;
-         b.R(1,1) =  1;
-         b.R(2,2) =  1;
-   
-         c.R(0,1) =  1;
-         c.R(1,2) =  1;
-         c.R(2,0) =  1;
-   
-         group.add(c);
-         group.add(b);
-         group.add(a);
-         group.makeCompleteGroup();
-   
-         // Create grid of wavevectors
-         FSArray<IntVector, 48> star;
-         i = 0;
-         j = 0;
-         for (h = 0; h <= hMax_; ++h) {
-            g[0] = h;
-            for (k = 0; k <= h; ++k) {
-               g[1] = k;
-               for (l = 0; l <= k; ++l) {
-                  g[2] = l;
-                  starIds_[i] = j;
-                  group.makeStar(g, star);
-                  starSizes_[i] = star.size();
-                  for (m = 0; m < star.size(); ++m) {
-                     waveIntVectors_[j] = star[m];
-                     ++j;
-                  }
-                  ++i;
+      a.R(0,0) =  1;
+      a.R(1,1) =  1;
+      a.R(2,2) =  1;
+
+      b.R(0,0) =  1;
+      b.R(1,1) =  1;
+      b.R(2,2) =  1;
+
+      c.R(0,0) =  1;
+      c.R(1,1) =  1;
+      c.R(2,2) =  1;
+
+      group.add(c);
+      group.add(b);
+      group.add(a);
+      group.makeCompleteGroup();
+
+      // Create grid of wavevectors
+      FSArray<IntVector, 16> star;
+      i = 0;
+      j = 0;
+      for (h = -hMax_; h <= hMax_; ++h) {
+         g[0] = h;
+         for (k = -hMax_; k <= hMax_; ++k) {
+            g[1] = k;
+            for (l = -hMax_; l <= hMax_; ++l) {
+               g[2] = l;
+               starIds_[i] = j;
+               group.makeStar(g, star);
+               starSizes_[i] = star.size();
+               for (m = 0; m < star.size(); ++m) {
+                  waveIntVectors_[j] = star[m];
+                  ++j;
                }
+               ++i;
             }
          }
-         if (i != nStar_) {
-            UTIL_THROW("Error");
-         } 
-         if (j != nWave_) {
-            UTIL_THROW("Error");
-         } 
-      } else if (lattice_ == Tetragonal) {
-
-         nStar_ = (hMax_ + 1 )*(hMax_ + 1)*(hMax_ + 2)/2;
-         starIds_.allocate(nStar_);
-         starSizes_.allocate(nStar_);
-         // Create tetragonal point group
-         PointGroup group;
-         PointSymmetry a, b, c;
-
-         a.R(0,0) =  1;
-         a.R(1,2) =  1;
-         a.R(2,1) =  1;
-
-         b.R(0,0) =  -1;
-         b.R(1,1) =  1;
-         b.R(2,2) =  1;
-
-         c.R(0,0) =  1;
-         c.R(1,1) =  -1;
-         c.R(2,2) =  1;
-
-         group.add(c);
-         group.add(b);
-         group.add(a);
-         group.makeCompleteGroup();
-
-         // Create grid of wavevectors
-         FSArray<IntVector, 16> star;
-         i = 0;
-         j = 0;
-         for (h = 0; h <= hMax_; ++h) {
-            g[0] = h;
-            for (k = 0; k <= hMax_; ++k) {
-               g[1] = k;
-               for (l = 0; l <= k; ++l) {
-                  g[2] = l;
-                  starIds_[i] = j;
-                  group.makeStar(g, star);
-                  starSizes_[i] = star.size();
-                  for (m = 0; m < star.size(); ++m) {
-                     waveIntVectors_[j] = star[m];
-                     ++j;
-                  }
-                  ++i;
-               }
-            }
-         }
-         if (i != nStar_) {
-            UTIL_THROW("Error");
-         }
-         if (j != nWave_) {
-            UTIL_THROW("Error");
-         }
-      } else if (lattice_ == Orthorhombic) {
-
-         nStar_ = (hMax_ + 1 )*(hMax_ + 1)*(hMax_ + 1);
-         starIds_.allocate(nStar_);
-         starSizes_.allocate(nStar_);
-         // Create tetragonal point group
-         PointGroup group;
-         PointSymmetry a, b, c;
-
-         a.R(0,0) =  -1;
-         a.R(1,1) =  1;
-         a.R(2,2) =  1;
-
-         b.R(0,0) =  1;
-         b.R(1,1) =  -1;
-         b.R(2,2) =  1;
-
-         c.R(0,0) =  1;
-         c.R(1,1) =  1;
-         c.R(2,2) =  -1;
-
-         group.add(c);
-         group.add(b);
-         group.add(a);
-         group.makeCompleteGroup();
-
-         // Create grid of wavevectors
-         FSArray<IntVector, 16> star;
-         i = 0;
-         j = 0;
-         for (h = 0; h <= hMax_; ++h) {
-            g[0] = h;
-            for (k = 0; k <= hMax_; ++k) {
-               g[1] = k;
-               for (l = 0; l <= hMax_; ++l) {
-                  g[2] = l;
-                  starIds_[i] = j;
-                  group.makeStar(g, star);
-                  starSizes_[i] = star.size();
-                  for (m = 0; m < star.size(); ++m) {
-                     waveIntVectors_[j] = star[m];
-                     ++j;
-                  }
-                  ++i;
-               }
-            }
-         }
-         if (i != nStar_) {
-            UTIL_THROW("Error");
-         }
-         if (j != nWave_) {
-            UTIL_THROW("Error");
-         }
+      }
+      if (i != nStar_) {
+         UTIL_THROW("Error");
+      }
+      if (j != nWave_) {
+         UTIL_THROW("Error");
       }
 
       if (simulation().domain().isMaster()) {
@@ -242,7 +130,7 @@ namespace DdMd
    /*
    * Load internal state from an archive.
    */
-   void StructureFactorGrid::loadParameters(Serializable::IArchive &ar)
+   void TStructureFactorGrid::loadParameters(Serializable::IArchive &ar)
    {
       nAtomType_ = simulation().nAtomType();
 
@@ -253,7 +141,6 @@ namespace DdMd
       modes_.allocate(nMode_, nAtomType_);
       loadDMatrix<double>(ar, "modes", modes_, nMode_, nAtomType_);
       loadParameter<int>(ar, "hMax", hMax_);
-      loadParameter<LatticeSystem>(ar, "lattice", lattice_);
 
       // Load and broadcast other distributed members
       MpiLoader<Serializable::IArchive> loader(*this, ar);
@@ -283,14 +170,13 @@ namespace DdMd
    /*
    * Save internal state to an archive.
    */
-   void StructureFactorGrid::save(Serializable::OArchive &ar)
+   void TStructureFactorGrid::save(Serializable::OArchive &ar)
    {
       saveInterval(ar);
       saveOutputFileName(ar);
       ar << nMode_;
       ar << modes_;
       ar << hMax_;
-      ar << lattice_;
 
       ar << nWave_;
       ar << waveIntVectors_;
@@ -302,10 +188,10 @@ namespace DdMd
       ar << structureFactors_;
    }
 
-   void StructureFactorGrid::clear()
+   void TStructureFactorGrid::clear()
    {}
 
-   void StructureFactorGrid::sample(long iStep)
+   void TStructureFactorGrid::sample(long iStep)
    {
       if (isAtInterval(iStep))  {
 
@@ -355,7 +241,7 @@ namespace DdMd
       }
    }
 
-   void StructureFactorGrid::output()
+   void TStructureFactorGrid::output()
    {
       if (simulation().domain().isMaster()) {
             

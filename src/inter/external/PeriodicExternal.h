@@ -9,6 +9,7 @@
 */
 
 #include <util/boundary/Boundary.h>
+#include <ddMd/simulation/Simulation.h>
 #include <util/space/Dimension.h>
 #include <util/space/Vector.h>
 #include <util/param/ParamComposite.h>
@@ -181,7 +182,6 @@ namespace Inter
    {
       const Vector cellLengths = boundaryPtr_->lengths();
       double clipParameter = 1.0/(2.0*M_PI*periodicity_*interfaceWidth_);
-      
       Vector r = position;
       r -= shift_;
       double cosine = 0.0;

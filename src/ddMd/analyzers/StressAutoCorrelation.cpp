@@ -123,7 +123,7 @@ namespace DdMd
       Simulation& sys = simulation();
 
       double pressure;
-      double volume=sys.boundary().volume();
+      double volume;
  
       if (isAtInterval(iStep))  {
          Simulation& sys = simulation();
@@ -136,6 +136,7 @@ namespace DdMd
             Tensor virial  = sys.virialStress();
             Tensor kinetic = sys.kineticStress();
             Tensor total = total.add(virial, kinetic);
+            volume = sys.boundary().volume();
             pressure = sys.kineticPressure()+sys.virialPressure();
 
             elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temperature_));

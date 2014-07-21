@@ -1,5 +1,5 @@
-#ifndef MCMD_STRESS_TENSOR_AUTO_CORRELATION_H
-#define MCMD_STRESS_TENSOR_AUTO_CORRELATION_H
+#ifndef MCMD_SSTRESS_TENSOR_AUTO_CORRELATION_H
+#define MCMD_SSTRESS_TENSOR_AUTO_CORRELATION_H
 
 /*
 * Simpatico - Simulation Package for Polymeric and Molecular Liquids
@@ -11,7 +11,7 @@
 #include <mcMd/analyzers/SystemAnalyzer.h>
 #include <util/space/Tensor.h>
 #include <util/ensembles/EnergyEnsemble.h>
-#include <util/accumulators/AutoCorrArray.h>     // member template
+#include <util/accumulators/AutoCorr.h>     // member template
 
 namespace McMd
 {
@@ -24,7 +24,7 @@ namespace McMd
    * \ingroup DdMd_Analyzer_Module
    */
    template <class SystemType>
-   class StressAutoCorrelation : public SystemAnalyzer<SystemType>
+   class SStressAutoCorrelation : public SystemAnalyzer<SystemType>
    {
    
    public:
@@ -34,12 +34,12 @@ namespace McMd
       *
       * \param simulation parent Simulation object. 
       */
-      StressAutoCorrelation(SystemType& system);
+      SStressAutoCorrelation(SystemType& system);
    
       /**
       * Destructor.
       */
-      virtual ~StressAutoCorrelation()
+      virtual ~SStressAutoCorrelation()
       {} 
    
       /**
@@ -97,7 +97,7 @@ namespace McMd
       std::ofstream  outputFile_;
       
       /// Statistical accumulator.
-      AutoCorrArray<double, double>  accumulator_;
+      AutoCorr<double, double>  accumulator_;
 
       /// Number of samples per block average output
       int  capacity_;
@@ -121,7 +121,7 @@ namespace McMd
    * Constructor.
    */
    template <class SystemType>
-   StressAutoCorrelation<SystemType>::StressAutoCorrelation(SystemType& system)
+   SStressAutoCorrelation<SystemType>::SStressAutoCorrelation(SystemType& system)
     : SystemAnalyzer<SystemType>(system),
       outputFile_(),
       accumulator_(),
@@ -133,13 +133,13 @@ namespace McMd
    * Read parameters and initialize.
    */
    template <class SystemType>
-   void StressAutoCorrelation<SystemType>::readParameters(std::istream& in)
+   void SStressAutoCorrelation<SystemType>::readParameters(std::istream& in)
    {
       readInterval(in);
       readOutputFileName(in);
       read(in,"capacity", capacity_);
 
-      accumulator_.setParam(9, capacity_);
+      accumulator_.setParam(capacity_);
       accumulator_.clear();
 
       isInitialized_ = true;
@@ -149,7 +149,7 @@ namespace McMd
    * Load state from an archive.
    */
    template <class SystemType>
-   void StressAutoCorrelation<SystemType>::loadParameters(Serializable::IArchive& ar)
+   void SStressAutoCorrelation<SystemType>::loadParameters(Serializable::IArchive& ar)
    {
       Analyzer::loadParameters(ar);
 
@@ -167,7 +167,7 @@ namespace McMd
    * Save state to archive.
    */
    template <class SystemType>
-   void StressAutoCorrelation<SystemType>::save(Serializable::OArchive& ar)
+   void SStressAutoCorrelation<SystemType>::save(Serializable::OArchive& ar)
    { ar & *this; }
 
 
@@ -176,7 +176,7 @@ namespace McMd
    */
    template <class SystemType>
    template <class Archive>
-   void StressAutoCorrelation<SystemType>::serialize(Archive& ar, const unsigned int version)
+   void SStressAutoCorrelation<SystemType>::serialize(Archive& ar, const unsigned int version)
    {
       Analyzer::serialize(ar, version);
       ar & capacity_;
@@ -187,7 +187,7 @@ namespace McMd
    * Set up immediately before simulation.
    */
    template <class SystemType>
-   void StressAutoCorrelation<SystemType>::setup() 
+   void SStressAutoCorrelation<SystemType>::setup() 
    {
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized");
@@ -199,7 +199,7 @@ namespace McMd
    * Evaluate pressure, and add to accumulator.
    */
    template <class SystemType>
-   void StressAutoCorrelation<SystemType>::sample(long iStep)
+   void SStressAutoCorrelation<SystemType>::sample(long iStep)
    {
       if (isAtInterval(iStep)){
 
@@ -211,8 +211,7 @@ namespace McMd
          sys.computeStress(pressure);
          volume = sys.boundary().volume();
 
-         DArray<double> elements;
-         elements.allocate(9);
+         double element;
 
          Tensor total;
          Tensor virial;
@@ -223,17 +222,9 @@ namespace McMd
          total.add(virial, kinetic);
          temperature = sys.energyEnsemble().temperature();
 
-         elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
-         elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature));
-         elements[2] = (total(0,2) + total(2,0)) / 2.0 *sqrt(volume/(10.0 * temperature));
-         elements[3] = elements[1];
-         elements[4] = (total(1,1) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
-         elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature));
-         elements[6] = elements[2];
-         elements[7] = elements[5];
-         elements[8] = (total(2,2) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
+         element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature);
 
-         accumulator_.sample(elements);
+         accumulator_.sample(element);
      }
    }
 
@@ -241,7 +232,7 @@ namespace McMd
    * Output results to file after simulation is completed.
    */
    template <class SystemType>
-   void StressAutoCorrelation<SystemType>::output() 
+   void SStressAutoCorrelation<SystemType>::output() 
    {
       // Write parameters to *.prm file
       fileMaster().openOutputFile(outputFileName(".prm"), outputFile_);

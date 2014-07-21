@@ -30,7 +30,7 @@ namespace DdMd
       accumulator_(),
       capacity_(-1),
       isInitialized_(false)
-   {  setClassName("StressAutoCorrelation"); }
+   {  setClassName("SStressAutoCorrelation"); }
 
    /*
    * Read interval and outputFileName. 

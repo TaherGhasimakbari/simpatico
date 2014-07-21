@@ -14,6 +14,7 @@ ddMd_analyzers_=\
      ddMd/analyzers/OutputPairEnergies.cpp\
      ddMd/analyzers/StructureFactor.cpp\
      ddMd/analyzers/StructureFactorGrid.cpp\
+     ddMd/analyzers/TStructureFactorGrid.cpp\
      ddMd/analyzers/VanHove.cpp\
      ddMd/analyzers/OrderParamNucleation.cpp\
      ddMd/analyzers/PairEnergyAverage.cpp\
