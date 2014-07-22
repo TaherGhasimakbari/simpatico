@@ -100,6 +100,9 @@ namespace McMd
       AutoCorrArray<double, double>  accumulator_;
 
       /// Number of samples per block average output
+      double  temperature_;
+
+      /// Number of samples per block average output
       int  capacity_;
 
       /// Has readParam been called?
@@ -125,6 +128,7 @@ namespace McMd
     : SystemAnalyzer<SystemType>(system),
       outputFile_(),
       accumulator_(),
+      temperature_(1),
       capacity_(-1),
       isInitialized_(false)
    {}
@@ -137,6 +141,7 @@ namespace McMd
    {
       readInterval(in);
       readOutputFileName(in);
+      read(in,"temperature", temperature_);
       read(in,"capacity", capacity_);
 
       accumulator_.setParam(9, capacity_);
@@ -153,6 +158,7 @@ namespace McMd
    {
       Analyzer::loadParameters(ar);
 
+      loadParameter(ar, "temperature", temperature_);
       loadParameter(ar, "capacity", capacity_);
       ar & accumulator_;
 
@@ -179,6 +185,7 @@ namespace McMd
    void StressAutoCorrelation<SystemType>::serialize(Archive& ar, const unsigned int version)
    {
       Analyzer::serialize(ar, version);
+      ar & temperature_;
       ar & capacity_;
       ar & accumulator_;
    }
@@ -205,10 +212,8 @@ namespace McMd
 
          double pressure;
          double volume;
-         double temperature;
 
          SystemType& sys=system(); 
-         sys.computeStress(pressure);
          volume = sys.boundary().volume();
 
          DArray<double> elements;
@@ -218,20 +223,20 @@ namespace McMd
          Tensor virial;
          Tensor kinetic;
 
-         sys.computeVirialStress(total);
+         sys.computeVirialStress(virial);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
-         temperature = sys.energyEnsemble().temperature();
+         pressure = (total(0,0)+total(1,1)+total(2,2)) / 3.0;
 
-         elements[0] = (total(0,0) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
-         elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature));
-         elements[2] = (total(0,2) + total(2,0)) / 2.0 *sqrt(volume/(10.0 * temperature));
+         elements[0] = (total(0,0) - pressure) * sqrt(volume/(10.0 * temperature_));
+         elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
+         elements[2] = (total(0,2) + total(2,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
          elements[3] = elements[1];
-         elements[4] = (total(1,1) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
-         elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature));
+         elements[4] = (total(1,1) - pressure) * sqrt(volume/(10.0 * temperature_));
+         elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature_));
          elements[6] = elements[2];
          elements[7] = elements[5];
-         elements[8] = (total(2,2) - pressure / 3.0) * sqrt(volume/(10.0 * temperature));
+         elements[8] = (total(2,2) - pressure) * sqrt(volume/(10.0 * temperature_));
 
          accumulator_.sample(elements);
      }
