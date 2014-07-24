@@ -100,6 +100,9 @@ namespace McMd
       AutoCorr<double, double>  accumulator_;
 
       /// Number of samples per block average output
+      double  temperature_;
+
+      /// Number of samples per block average output
       int  capacity_;
 
       /// Has readParam been called?
@@ -125,6 +128,7 @@ namespace McMd
     : SystemAnalyzer<SystemType>(system),
       outputFile_(),
       accumulator_(),
+      temperature_(1),
       capacity_(-1),
       isInitialized_(false)
    {}
@@ -137,6 +141,7 @@ namespace McMd
    {
       readInterval(in);
       readOutputFileName(in);
+      read(in,"temperature", temperature_);
       read(in,"capacity", capacity_);
 
       accumulator_.setParam(capacity_);
@@ -153,6 +158,7 @@ namespace McMd
    {
       Analyzer::loadParameters(ar);
 
+      loadParameter(ar, "temperature", temperature_);
       loadParameter(ar, "capacity", capacity_);
       ar & accumulator_;
 
@@ -205,7 +211,6 @@ namespace McMd
 
          double pressure;
          double volume;
-         double temperature;
 
          SystemType& sys=system(); 
          sys.computeStress(pressure);
@@ -217,12 +222,10 @@ namespace McMd
          Tensor virial;
          Tensor kinetic;
 
-         sys.computeVirialStress(total);
+         sys.computeVirialStress(virial);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
-         temperature = sys.energyEnsemble().temperature();
-
-         element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature);
+         element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature_);
 
          accumulator_.sample(element);
      }

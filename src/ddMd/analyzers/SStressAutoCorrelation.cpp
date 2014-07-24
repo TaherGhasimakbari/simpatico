@@ -127,7 +127,7 @@ namespace DdMd
             Tensor kinetic = sys.kineticStress();
             Tensor total = total.add(virial, kinetic);
 
-            element = sqrt(volume/temperature_) * (total(0,1) + total(1,0)) / 2.0;          
+            element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature_);          
             accumulator_.sample(element);
          }
       }
