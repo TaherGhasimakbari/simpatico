@@ -185,6 +185,7 @@ namespace McMd
    void SStressAutoCorrelation<SystemType>::serialize(Archive& ar, const unsigned int version)
    {
       Analyzer::serialize(ar, version);
+      ar & temperature_;
       ar & capacity_;
       ar & accumulator_;
    }
@@ -225,8 +226,8 @@ namespace McMd
          sys.computeVirialStress(virial);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
-         element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature_);
 
+         element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature_);
          accumulator_.sample(element);
      }
    }

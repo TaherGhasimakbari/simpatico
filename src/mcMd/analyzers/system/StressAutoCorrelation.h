@@ -103,6 +103,9 @@ namespace McMd
       double  temperature_;
 
       /// Number of samples per block average output
+      double  temperature_;
+
+      /// Number of samples per block average output
       int  capacity_;
 
       /// Has readParam been called?
@@ -185,6 +188,7 @@ namespace McMd
    void StressAutoCorrelation<SystemType>::serialize(Archive& ar, const unsigned int version)
    {
       Analyzer::serialize(ar, version);
+      ar & temperature_;
       ar & capacity_;
       ar & accumulator_;
    }
@@ -211,7 +215,12 @@ namespace McMd
 
          double pressure;
          double volume;
+
          SystemType& sys=system(); 
+         volume = sys.boundary().volume();
+
+         DArray<double> elements;
+         elements.allocate(9);
 
          Tensor total;
          Tensor virial;
@@ -220,16 +229,12 @@ namespace McMd
          sys.computeVirialStress(virial);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
-         
-         sys.computeStress(pressure);
-         //pressure = (total(0,0) + total(1,1) + total(2,2))/3.0;
-         volume = sys.boundary().volume();
-         DArray<double> elements;
-         elements.allocate(9);
+
+         pressure = (total(0,0)+total(1,1)+total(2,2)) / 3.0;
 
          elements[0] = (total(0,0) - pressure) * sqrt(volume/(10.0 * temperature_));
          elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
-         elements[2] = (total(0,2) + total(2,0)) / 2.0 *sqrt(volume/(10.0 * temperature_));
+         elements[2] = (total(0,2) + total(2,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
          elements[3] = elements[1];
          elements[4] = (total(1,1) - pressure) * sqrt(volume/(10.0 * temperature_));
          elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature_));
