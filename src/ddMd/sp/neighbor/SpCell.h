@@ -1,5 +1,5 @@
-#ifndef DDMD_CELL_H
-#define DDMD_CELL_H
+#ifndef DDMD_SP_CELL_H
+#define DDMD_SP_CELL_H
 
 /*
 * Simpatico - Simulation Package for Polymeric and Molecular Liquids
@@ -9,8 +9,9 @@
 */
 
 #include <ddMd/sp/neighbor/SpCellAtom.h>
-#include <ddMd/sp/chemistry/Atom.h>
+#include <ddMd/sp/chemistry/SpAtom.h>
 #include <util/containers/FSArray.h>
+#include <util/containers/FArray.h>
 #include <util/global.h>
 
 #include <utility>
@@ -29,8 +30,6 @@ namespace DdMd
    *
    * A linked list of cells is created by a parent SpCellList. The method
    * SpCellList::begin() returns a pointer to the first SpCell in the list.
-   * This linked list normally contains only the cells with local atoms,
-   * and excludes cells of ghost atoms.
    *
    * The method SpCell::getNeighbors() returns an array containing pointers
    * to atoms in this cell and all neighboring cells, with the atoms in
@@ -41,10 +40,10 @@ namespace DdMd
    * \code
    * 
    *   SpCellList cellList;                // parent SpCellList
-   *   SpCell::NeighborArray neighbors;    // array of Atom* pointers
+   *   SpCell::NeighborArray neighbors;    // array of SpCellAtom* pointers
    *   const SpCell* cellPtr;              // pointer to SpCell in linked list
-   *   Atom*  atom1Ptr;                  // pointer to Atom in this cell.
-   *   Atom*  atom2Ptr;                  // pointer to neighbor Atom
+   *   SpAtom*  atom1Ptr;                  // pointer to Atom in this cell.
+   *   SpAtom*  atom2Ptr;                  // pointer to neighbor Atom
    *  
    *   // Iterate over cells in list.
    *   cellPtr = cellList.begin();
@@ -81,28 +80,9 @@ namespace DdMd
       static const int MaxNeighborAtom = 2000;
 
       /**
-      * Maximum number of cell per cutoff length.
+      * An array of relative cell ids for neighboring cells.
       */
-      static const int MaxNCellCut = 4;
-      
-      /**
-      * Maximum allowed number of neighboring cells. 
-      */
-      static const int OffSetArrayCapacity = (2*MaxNCellCut + 1)*(2*MaxNCellCut + 1) + 3;
-    
-      /**
-      * An array of strips of relative ids for columns of neighboring cells.
-      *
-      * Every cell has a pointer to an OffsetArray, which uses relative 
-      * cell indices (offsets relative to the cell id of the primary cell) 
-      * to identify neighboring cells. Each std::pair<int, int> element in 
-      * in an OffsetArra contains relative addresses for the the first 
-      * (pair.first) and last (pair.second) cells in a contiguous strip of 
-      * cells that could contain atoms that lie within a cutoff length of 
-      * some point in the primary cell. The contents of the OffsetArray
-      * are calculated in the SpCellList::makeGrid() function.
-      */
-      typedef FSArray< std::pair<int,int>, OffSetArrayCapacity> OffsetArray;
+      typedef FArray<int, 27> OffsetArray;
 
       /**
       * Static array for holding neighbors in a cell list.
@@ -119,19 +99,19 @@ namespace DdMd
       /**
       * Set the pointer to the next cell in the list.
       */
-      void setNextSpCell(SpCell& nextSpCell);
+      void setNextCell(SpCell& nextSpCell);
 
       /**
       * Set this to be the last cell in the list.
       */
-      void setLastSpCell();
+      void setLastCell();
 
       /**
       * Return a pointer to neighbor cell i.
       */
-      const SpCell* nextSpCellPtr() const;
+      const SpCell* nextCellPtr() const;
 
-      // Mutators 
+      // Mutators
 
       /**
       * Set id for this SpCell.
@@ -146,14 +126,7 @@ namespace DdMd
       void setOffsetArray(OffsetArray& offsets);
 
       /**
-      * Mark as a ghost or local cell.
-      */
-      void setIsGhostSpCell(bool isGhostSpCell = true);
-
-      /**
       * Reset to empty before incrementing capacity.
-      *
-      * Does not nullify nextSpCell pointer is isGhostSpCell bool.
       */
       void clear();
 
@@ -182,7 +155,7 @@ namespace DdMd
       /**
       * Append an Atom to an initialized cell.
       */
-      void append(Atom* atomPtr);
+      void append(SpAtom* atomPtr);
 
       // Accessors
 
@@ -207,11 +180,6 @@ namespace DdMd
       SpCellAtom* atomPtr(int i) const;
 
       /**
-      * Is this a ghost cell?
-      */
-      bool isGhostSpCell() const;
-
-      /**
       * Fill an array with pointers to atoms in a cell and neighboring cells.
       *
       * Upon return, the FSArray neighbors contains pointers to all of the
@@ -219,37 +187,31 @@ namespace DdMd
       * contain pointers to atoms in this cell. 
       *
       * To avoid double counting of pairs, the method only returns atoms from
-      * neighboring local cells with a cell id greater than this->id(), and 
-      * from neighboring ghost cells.
+      * neighboring local cells with a cell id greater than this->id().
       *
-      * \param neighbors          Array of pointers to neighbor Atoms
-      * \param reverseUpdateFlag  Is reverse communication enabled?
+      * \param neighbors Array of pointers to neighbor Atoms
       */
-      void getNeighbors(NeighborArray& neighbors, 
-                        bool reverseUpdateFlag = false) const;
+      void getNeighbors(NeighborArray& neighbors) const;
 
    private:
 
-      /// Pointer to first Atom* pointer for this cell.
-      SpCellAtom*  begin_;         
+      /// Pointer to first SpCellAtom in this cell.
+      SpCellAtom* begin_; 
 
       /// Pointer to neighbor offset array.
-      OffsetArray*  offsetsPtr_;
+      OffsetArray* offsetsPtr_;
 
       /// Pointer to next local SpCell.
-      SpCell*  nextSpCellPtr_;
+      SpCell* nextCellPtr_;
 
       /// Number of atoms in this cell.
       int  nAtom_;
 
       /// Maximum number of atoms in cell.
-      int  atomCapacity_;  
+      int  atomCapacity_;
 
       /// Id of cell in grid.
       int id_;
-
-      /// Is this a ghost cell?
-      bool isGhostSpCell_;
 
    };
 
@@ -279,7 +241,7 @@ namespace DdMd
       return (begin_ + atomCapacity_);
    }
 
-   inline void SpCell::append(Atom* atomPtr)
+   inline void SpCell::append(SpAtom* atomPtr)
    {
       assert(begin_ != 0);
       assert(nAtom_ < atomCapacity_);
@@ -312,20 +274,14 @@ namespace DdMd
    /*
    * Pointer to next cell in list.
    */
-   inline const SpCell* SpCell::nextSpCellPtr() const
-   {  return nextSpCellPtr_; }
+   inline const SpCell* SpCell::nextCellPtr() const
+   {  return nextCellPtr_; }
 
    /*
    *  Return current capacity of cell. 
    */
    inline int SpCell::atomCapacity() const
    {  return atomCapacity_; }
-
-   /*
-   * Is this a ghost cell?
-   */
-   inline bool SpCell::isGhostSpCell() const
-   {  return isGhostSpCell_; }
 
 }
 #endif
