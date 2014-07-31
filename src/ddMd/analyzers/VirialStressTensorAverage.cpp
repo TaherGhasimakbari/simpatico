@@ -172,15 +172,15 @@ namespace DdMd
       if (simulation().domain().isMaster()) {
         
          outputFile_ << 
-                     "Sxx=" << Dbl(sxxAccumulator_.average(), 17)<< "  +-  " << Dbl(sxxAccumulator_.error(), 9, 8) << "\n" << 
-                     "Sxy=" << Dbl(sxyAccumulator_.average(), 17)<< "  +-  " << Dbl(sxyAccumulator_.error(), 9, 8) << "\n" << 
-                     "Sxz=" << Dbl(sxzAccumulator_.average(), 17)<< "  +-  " << Dbl(sxzAccumulator_.error(), 9, 8) << "\n" << 
-                     "Syx=" << Dbl(syxAccumulator_.average(), 17)<< "  +-  " << Dbl(syxAccumulator_.error(), 9, 8) << "\n" << 
-                     "Syy=" << Dbl(syyAccumulator_.average(), 17)<< "  +-  " << Dbl(syyAccumulator_.error(), 9, 8) << "\n" << 
-                     "Syz=" << Dbl(syzAccumulator_.average(), 17)<< "  +-  " << Dbl(syzAccumulator_.error(), 9, 8) << "\n" << 
-                     "Szx=" << Dbl(szxAccumulator_.average(), 17)<< "  +-  " << Dbl(szxAccumulator_.error(), 9, 8) << "\n" << 
-                     "Szy=" << Dbl(szyAccumulator_.average(), 17)<< "  +-  " << Dbl(szyAccumulator_.error(), 9, 8) << "\n" << 
-                     "Szz=" << Dbl(szzAccumulator_.average(), 17)<< "  +-  " << Dbl(szzAccumulator_.error(), 9, 8) << "\n" << 
+                     "Sxx=" << Dbl(sxxAccumulator_.average(), 17)<< "  +-  " << Dbl(sxxAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Sxy=" << Dbl(sxyAccumulator_.average(), 17)<< "  +-  " << Dbl(sxyAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Sxz=" << Dbl(sxzAccumulator_.average(), 17)<< "  +-  " << Dbl(sxzAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Syx=" << Dbl(syxAccumulator_.average(), 17)<< "  +-  " << Dbl(syxAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Syy=" << Dbl(syyAccumulator_.average(), 17)<< "  +-  " << Dbl(syyAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Syz=" << Dbl(syzAccumulator_.average(), 17)<< "  +-  " << Dbl(syzAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Szx=" << Dbl(szxAccumulator_.average(), 17)<< "  +-  " << Dbl(szxAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Szy=" << Dbl(szyAccumulator_.average(), 17)<< "  +-  " << Dbl(szyAccumulator_.blockingError(), 9, 8) << "\n" << 
+                     "Szz=" << Dbl(szzAccumulator_.average(), 17)<< "  +-  " << Dbl(szzAccumulator_.blockingError(), 9, 8) << "\n" << 
                      std::endl;
          }
    }

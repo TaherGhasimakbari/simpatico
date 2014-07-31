@@ -58,7 +58,7 @@ namespace Inter
       *
       * \param externalParameter external parameter of system
       */
-      void setExternalParameter(DArray<double> amplitude);
+      void setExternalParameter(double a);
 
       /**
       * Set pointer to Boundary.
@@ -127,7 +127,10 @@ namespace Inter
       static const int MaxAtomType = 3;
 
       /// Prefactor array ofsize nAtomType.
-      DArray<double> a_;
+      DArray<double> prefactor_;
+
+      /// Prefactor array ofsize nAtomType.
+      double a_;
 
       /// Array of Miller index IntVectors for the reciprocal lattice vectors.
       IntVector  b_;
@@ -142,10 +145,10 @@ namespace Inter
       Boundary *boundaryPtr_;
    
       /// Number of possible atom types.
-      int    nAtomType_; 
+      int nAtomType_; 
 
       /// Are all parameters and pointers initialized?
-      bool  isInitialized_;
+      bool isInitialized_;
 
    };
   
@@ -167,7 +170,7 @@ namespace Inter
       double arg = q.dot(position);
       cosine += cos(arg);
       cosine *= clipParameter;
-      return a_[type]*tanh(cosine);
+      return prefactor_[type]*a_*tanh(cosine);
    }
 
    /* 
@@ -197,7 +200,7 @@ namespace Inter
       deriv *= clipParameter;
       double tanH = tanh(cosine);
       double sechSq = (1.0 - tanH*tanH);
-      double f = a_[type]*sechSq;
+      double f = prefactor_[type]*a_*sechSq;
       deriv *= -1.0*f;
 
       force = deriv;

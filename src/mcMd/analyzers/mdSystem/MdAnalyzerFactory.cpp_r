@@ -20,6 +20,7 @@
 #include "MdIntraBondStressAutoCorr.h"
 #include "MdIntraBondTensorAutoCorr.h"
 #include "MdPairEnergyCoefficients.h"
+#include "MdStressAutoCorrelation.h"
 
 #include <mcMd/mdSimulation/MdSimulation.h>
 

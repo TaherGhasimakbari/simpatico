@@ -21,6 +21,8 @@ namespace McMd
    /**
    * Periodically write (tensor) StressTensor to file.
    *
+   * Typename SystemType can be McSystem or MdSystem.
+   *
    * \ingroup DdMd_Analyzer_Module
    */
    template <class SystemType>
@@ -32,7 +34,7 @@ namespace McMd
       /**
       * Constructor.
       *
-      * \param simulation parent Simulation object. 
+      * \param system parent SystemType object. 
       */
       StressAutoCorrelation(SystemType& system);
    
@@ -73,21 +75,19 @@ namespace McMd
       void serialize(Archive& ar, const unsigned int version);
   
       /**
-      * Setup accumulator!
+      * Setup accumulator.
       */
       virtual void setup();
   
       /**
       * Sample virial stress to accumulators
       *
-      * \param iStep MD step index
+      * \param iStep MD or MC step index
       */
       virtual void sample(long iStep);
 
       /**
       * Dump configuration to file
-      *
-      * \param iStep MD step index
       */
       virtual void output();
 
@@ -98,6 +98,9 @@ namespace McMd
       
       /// Statistical accumulator.
       AutoCorrArray<double, double>  accumulator_;
+
+      /// Thermodynamic temperature
+      double  temperature_;
 
       /// Number of samples per block average output
       double  temperature_;
@@ -226,6 +229,7 @@ namespace McMd
          sys.computeVirialStress(virial);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
+
          pressure = (total(0,0)+total(1,1)+total(2,2)) / 3.0;
 
          elements[0] = (total(0,0) - pressure) * sqrt(volume/(10.0 * temperature_));

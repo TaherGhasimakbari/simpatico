@@ -120,6 +120,8 @@ namespace DdMd
    {  
       DArray<double> elements;
       elements.allocate(9);
+      Simulation& sys = simulation();
+
       double pressure;
       double volume;
  

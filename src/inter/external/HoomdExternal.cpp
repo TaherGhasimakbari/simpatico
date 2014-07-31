@@ -38,9 +38,9 @@ namespace Inter
       nAtomType_(other.nAtomType_),
       isInitialized_(other.isInitialized_)
    {
-      a_.allocate(nAtomType_);
+      prefactor_.allocate(nAtomType_);
       for (int i=0; i < nAtomType_; ++i) {
-        a_[i] = other.a_[i];
+        prefactor_[i] = other.prefactor_[i];
       }
       for (int i=0; i < Dimension; ++i) {
         b_[i] = other.b_[i];
@@ -59,7 +59,7 @@ namespace Inter
       nAtomType_     = other.nAtomType_;
       isInitialized_ = other.isInitialized_;
       for (int i=0; i < nAtomType_; ++i) {
-        a_[i] = other.a_[i];
+        prefactor_[i] = other.prefactor_[i];
       }
       for (int i=0; i < Dimension; ++i) {
         b_[i] = other.b_[i];
@@ -81,16 +81,14 @@ namespace Inter
       nAtomType_ = nAtomType;
    }
 
-   void HoomdExternal::setExternalParameter(DArray<double> amplitude) 
+   void HoomdExternal::setExternalParameter(double a) 
    {  
       // Preconditions
       if (!isInitialized_) {
          UTIL_THROW("HoomdExternal potential is not initialized");
       }
 
-      for (int i=0; i < nAtomType_; ++i) {
-        a_[i] = amplitude[i];
-      }
+      a_ = a;
    }
 
    
@@ -113,11 +111,12 @@ namespace Inter
       }
   
       // Read parameters
-      a_.allocate(nAtomType_);
-      readDArray<double>(in, "A", a_, nAtomType_);
+      prefactor_.allocate(nAtomType_);
+      readDArray<double>(in, "prefactor", prefactor_, nAtomType_);
+      read<double>(in, "a", a_);
       read<IntVector>(in, "b", b_);
-      read<double>(in, "w", w_);
       read<int>(in, "p", p_);
+      read<double>(in, "w", w_);
 
       isInitialized_ = true;
    }
@@ -131,8 +130,9 @@ namespace Inter
       if (nAtomType_ <= 0) {
          UTIL_THROW( "nAtomType must be positive");
       }
-      a_.allocate(nAtomType_);
-      loadDArray<double>(ar, "A", a_, nAtomType_);
+      prefactor_.allocate(nAtomType_);
+      loadDArray<double>(ar, "prefactor", prefactor_, nAtomType_);
+      loadParameter<double>(ar, "a", a_);
       loadParameter<IntVector>(ar, "b", b_);
       loadParameter<int>(ar, "p", p_);
       loadParameter<double>(ar, "w", w_);
@@ -145,6 +145,7 @@ namespace Inter
    void HoomdExternal::save(Serializable::OArchive &ar)
    {
       ar << nAtomType_;
+      ar << prefactor_;
       ar << a_;
       ar << b_;
       ar << p_;
