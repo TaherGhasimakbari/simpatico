@@ -100,7 +100,7 @@ namespace McMd
       AutoCorr<double, double>  accumulator_;
 
       /// Number of samples per block average output
-      int  temperature_;
+      double  temperature_;
 
       /// Number of samples per block average output
       int  capacity_;
