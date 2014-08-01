@@ -103,9 +103,6 @@ namespace McMd
       double  temperature_;
 
       /// Number of samples per block average output
-      double  temperature_;
-
-      /// Number of samples per block average output
       int  capacity_;
 
       /// Has readParam been called?

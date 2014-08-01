@@ -67,7 +67,7 @@ namespace McMd
       }
       int nMolecule = system().nMolecule(speciesId_);
       int nAtom = nMolecule * speciesPtr_->nAtom();
-
+      std::cout<<"nMolecule"<<"\t"<<nMolecule<<"nAtom"<<"\t"<<nAtom<<"\n";
       cellList_.allocate(nAtom, system().boundary(), cutoff_);
 
       clusters_.allocate(nMolecule);

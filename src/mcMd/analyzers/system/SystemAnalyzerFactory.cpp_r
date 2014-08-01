@@ -28,6 +28,7 @@
 #include "BlockRadiusGyration.h"
 #include "BondLengthDist.h"
 #include "CompositionProfile.h"
+#include "ClustersStatistics.h"
 #include "AtomMSD.h"
 #include "ComMSD.h"
 #include "IntraPairAutoCorr.h"
@@ -107,6 +108,9 @@ namespace McMd
       } else 
       if (className == "CompositionProfile") {
          ptr = new CompositionProfile(system());
+      } else 
+      if (className == "ClustersStatistics") {
+         ptr = new ClustersStatistics(system());
       } else 
       if (className == "AtomMSD") {
          ptr = new AtomMSD(system());

@@ -124,6 +124,16 @@ McSimulation{
       waveIntVectors              3    0   0
     }
 
+    ClustersStatistics{
+      interval                          200
+      outputFileName               Clusters
+      speciesId                           0
+      coreId                              0
+      cutoff                              1
+      histMin                             1
+      histMax                           100
+    }
+
   }
   saveInterval                200
   saveFileName            restart
