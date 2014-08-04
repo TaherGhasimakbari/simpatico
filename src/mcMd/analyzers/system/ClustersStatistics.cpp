@@ -65,10 +65,7 @@ namespace McMd
       if (cutoff_ < 0) {
          UTIL_THROW("Negative cutoff");
       }
-      int nMolecule = system().nMolecule(speciesId_);
-      int nAtom = nMolecule * speciesPtr_->nAtom();
-      std::cout<<"nMolecule"<<"\t"<<nMolecule<<"nAtom"<<"\t"<<nAtom<<"\n";
-      cellList_.allocate(nAtom, system().boundary(), cutoff_);
+      int nMolecule = speciesPtr_->capacity();
 
       clusters_.allocate(nMolecule);
       for(int i = 0; i < nMolecule; ++i) { 
@@ -110,10 +107,7 @@ namespace McMd
       if (cutoff_ < 0) {
          UTIL_THROW("Negative cutoff");
       }
-      int nMolecule = system().nMolecule(speciesId_);
-      int nAtom = nMolecule * speciesPtr_->nAtom();
-
-      cellList_.allocate(nAtom, system().boundary(), cutoff_);
+      int nMolecule = speciesPtr_->capacity();
 
       clusters_.allocate(nMolecule);
       clusterLengths_.reserve(nMolecule);
@@ -179,6 +173,10 @@ namespace McMd
    { 
       if (isAtInterval(iStep)) {
          
+         int nMolecule = system().nMolecule(speciesId_);
+         int nAtom = nMolecule * speciesPtr_->nAtom();
+         cellList_.allocate(nAtom, system().boundary(), cutoff_);
+
          cellList_.makeGrid(system().boundary(), cutoff_);
          cellList_.clear();
          
@@ -202,7 +200,6 @@ namespace McMd
              }
          }
          
-         int nMolecule = system().nMolecule(speciesId_);
          for (int i = 0; i < nMolecule; i++) {
              clusterLengths_[clusters_[i].clusterId_]++;
          }
