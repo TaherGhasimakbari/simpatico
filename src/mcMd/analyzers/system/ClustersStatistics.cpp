@@ -35,7 +35,7 @@ namespace McMd
       cellList_(),
       clusters_(),
       clusterLengths_(),
-      histMin_(1),
+      histMin_(0),
       histMax_(),
       hist_(),
       isInitialized_(false)
@@ -89,6 +89,7 @@ namespace McMd
    {
       // Load (everything but accumulators_)
       Analyzer::loadParameters(ar);
+
       loadParameter<int>(ar,"speciesId", speciesId_);
       if (speciesId_ < 0) {
          UTIL_THROW("Negative speciesId");
@@ -149,21 +150,21 @@ namespace McMd
           if (atomIter->typeId() == coreId_) {                                         // Checks the atomType to make sure it has the right Type.
             cellList_.getNeighbors(atomIter->position(), aNeighbors);                  // Takes neighbors of molecules atom out of cellList.
             for (int i = 0; i < aNeighbors.size(); i++) {
-                if (aNeighbors[i]->molecule().id() != atomIter->molecule().id()) {
-                   if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ == -1) {
-                      clusters_[aNeighbors[i]->molecule().id()].clusterId_ = clusterId;
-                      mNeighbors.append(aNeighbors[i]->molecule().id());               // Adds neighbor molecule to list of neighbors.
-                   } else if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ != clusterId) UTIL_THROW("Cluster Clash!"); 
-                } 
+                if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ == -1) {
+                   std::cout<<aNeighbors[i]->molecule().id()<<"\t"<<clusterId<<"\n";
+                   clusters_[aNeighbors[i]->molecule().id()].clusterId_ = clusterId;
+                   mNeighbors.append(aNeighbors[i]->molecule().id());               // Adds neighbor molecule to list of neighbors.
+                } else if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ != clusterId) UTIL_THROW("Cluster Clash!"); 
             } 
           }
       }
       
-      for (int i = 0; i < mNeighbors.size(); i++) {
+      for (int i = 0; i < mNeighbors.size(); ++i) {
           findClusters(clusters_[mNeighbors[i]].self_, clusterId);
       }
-
-      if (!isInitialized_) UTIL_THROW("Object is not initialized");
+      
+      aNeighbors.clear();
+      mNeighbors.deallocate();
    }
 
    /* 
@@ -176,15 +177,13 @@ namespace McMd
          int nMolecule = system().nMolecule(speciesId_);
          int nAtom = nMolecule * speciesPtr_->nAtom();
          cellList_.allocate(nAtom, system().boundary(), cutoff_);
-
-         cellList_.makeGrid(system().boundary(), cutoff_);
-         cellList_.clear();
          
          int clusterId = 0;
 
          System::MoleculeIterator molIter;                                             // Loading cellList with atoms.  
          Molecule::AtomIterator atomIter;           
          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
+             clusters_[molIter->id()].self_ = molIter.get();
              for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
                  if (atomIter->typeId() == coreId_) {
                     system().boundary().shift(atomIter->position());
@@ -199,9 +198,15 @@ namespace McMd
                 clusterId++;
              }
          }
-         
+          
+         clusterLengths_.resize(clusterId);
+         for (int i = 0; i < clusterId; ++i) {
+             clusterLengths_[i] = 0;
+         }
+
          for (int i = 0; i < nMolecule; i++) {
-             clusterLengths_[clusters_[i].clusterId_]++;
+             //if ( clusters_[i].clusterId_ == -1 ) UTIL_THROW("Clusterization not completed!");
+             ++clusterLengths_[clusters_[i].clusterId_];
          }
       }                     // If is at interval.
    }
@@ -219,7 +224,7 @@ namespace McMd
       outputFile_ << "Cluster Id" <<"\t"<< "Number of Molecules" <<"\n";
       for (int i = 0; i < clusterLengths_.size(); i++) {
           hist_.sample(clusterLengths_[i]);
-          outputFile_ << i+1 <<"\t"<< clusterLengths_[i];
+          outputFile_<< i+1 << "\t"<< clusterLengths_[i]<< "\n";
       }
       outputFile_.close();
   
