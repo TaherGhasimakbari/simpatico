@@ -208,6 +208,15 @@ namespace McMd
              //if ( clusters_[i].clusterId_ == -1 ) UTIL_THROW("Clusterization not completed!");
              ++clusterLengths_[clusters_[i].clusterId_];
          }
+
+         for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
+             clusters_[molIter->id()].self_ = molIter.get();
+             for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
+                 if (atomIter->typeId() == coreId_) {
+                    atomIter->setTypeId(clusters_[molIter->id()].clusterId_);
+                 }
+             }              // Atom loop.
+         }                  // Molecule loop.
       }                     // If is at interval.
    }
 
