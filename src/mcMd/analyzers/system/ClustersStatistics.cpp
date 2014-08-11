@@ -132,6 +132,9 @@ namespace McMd
    */
    void ClustersStatistics::setup() 
    {  
+      int nMolecule = system().nMolecule(speciesId_);
+      int nAtom = nMolecule * speciesPtr_->nAtom();
+      cellList_.allocate(nAtom, system().boundary(), cutoff_);
       if (!isInitialized_) UTIL_THROW("Object is not initialized");
    }
 
@@ -175,9 +178,6 @@ namespace McMd
       if (isAtInterval(iStep)) {
          
          int nMolecule = system().nMolecule(speciesId_);
-         int nAtom = nMolecule * speciesPtr_->nAtom();
-         cellList_.allocate(nAtom, system().boundary(), cutoff_);
-         
          int clusterId = 0;
 
          System::MoleculeIterator molIter;                                             // Loading cellList with atoms.  
