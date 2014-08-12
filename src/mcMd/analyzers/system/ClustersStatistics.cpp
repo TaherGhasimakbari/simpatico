@@ -218,7 +218,6 @@ namespace McMd
              }              // Atom loop.
          }                  // Molecule loop.
 
-      System::MoleculeIterator molIter;
       fileMaster().openOutputFile(outputFileName(".clusters"), outputFile_);
       for (int i = 0; i < clusterLengths_.size(); i++) {
           outputFile_<< i << "\t\t";
