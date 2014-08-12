@@ -183,6 +183,9 @@ namespace McMd
          
          int nMolecule = system().nMolecule(speciesId_);
          int clusterId = 0;
+         cellList_.clear();
+         clusterLengths_.clear();
+         hist_.clear();
 
          System::MoleculeIterator molIter;                                             // Loading cellList with atoms.  
          Molecule::AtomIterator atomIter;           
