@@ -220,11 +220,11 @@ namespace McMd
 
       fileMaster().openOutputFile(outputFileName(".clusters"), outputFile_);
       for (int i = 0; i < clusterLengths_.size(); i++) {
-          outputFile_<< i << "\t\t";
+          outputFile_<< i+1 << "\t\t";
           for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
               if(clusters_[molIter->id()].clusterId_ == i) outputFile_<< molIter->id()<<"\t";
           }
-          outputFile_<<"\n";
+          outputFile_<<"\n\n\n";
       }
       outputFile_.close();
 
