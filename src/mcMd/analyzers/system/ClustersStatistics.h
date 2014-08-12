@@ -144,6 +144,9 @@ namespace McMd
       /// Distribution of the Clusters.
       IntDistribution  hist_;
    
+      /// Number of configurations dumped thus far(first dump is zero).
+      long  nSample_;
+
       /// Has readParam been called?
       bool  isInitialized_;
 

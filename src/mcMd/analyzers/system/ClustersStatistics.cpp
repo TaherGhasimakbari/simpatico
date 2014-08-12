@@ -19,6 +19,8 @@
 #include <util/archives/Serializable_includes.h>
 
 #include <util/format/Dbl.h>
+#include <util/misc/ioUtil.h>
+#include <sstream>
 
 namespace McMd
 {
@@ -38,6 +40,7 @@ namespace McMd
       histMin_(0),
       histMax_(),
       hist_(),
+      nSample_(0),
       isInitialized_(false)
    {  setClassName("ClustersStatistics"); }
 
@@ -135,6 +138,7 @@ namespace McMd
       int nMolecule = system().nMolecule(speciesId_);
       int nAtom = nMolecule * speciesPtr_->nAtom();
       cellList_.allocate(nAtom, system().boundary(), cutoff_);
+      nSample_ = 0;
       if (!isInitialized_) UTIL_THROW("Object is not initialized");
    }
 
@@ -218,7 +222,11 @@ namespace McMd
              }              // Atom loop.
          }                  // Molecule loop.
 
-      fileMaster().openOutputFile(outputFileName(".clusters"), outputFile_);
+      std::string fileName;
+      fileName  = outputFileName();
+      fileName += toString(iStep);
+      fileName += ".clusters";
+      fileMaster().openOutputFile(fileName, outputFile_);
       for (int i = 0; i < clusterLengths_.size(); i++) {
           outputFile_<<"Cluster "<< i+1<<"includes molecules:"<< "\n";
           for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
@@ -228,6 +236,24 @@ namespace McMd
       }
       outputFile_.close();
 
+      fileName  = outputFileName();
+      fileName += toString(iStep);
+      fileName += ".dat";
+      fileMaster().openOutputFile(fileName, outputFile_);
+      outputFile_ << "Cluster Id" <<"\t"<< "Number of Molecules" <<"\n";
+      for (int i = 0; i < clusterLengths_.size(); i++) {
+          hist_.sample(clusterLengths_[i]);
+          outputFile_<< i+1 << "\t"<< clusterLengths_[i]<< "\n";
+      }
+      outputFile_.close();
+
+      fileName  = outputFileName();
+      fileName += toString(iStep);
+      fileName += ".hist";
+      fileMaster().openOutputFile(fileName, outputFile_);
+      hist_.output(outputFile_);
+      outputFile_.close();
+      ++nSample_;
       }
    }
 
@@ -238,18 +264,6 @@ namespace McMd
    {
       fileMaster().openOutputFile(outputFileName(".prm"), outputFile_);
       writeParam(outputFile_);
-      outputFile_.close();
-
-      fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
-      outputFile_ << "Cluster Id" <<"\t"<< "Number of Molecules" <<"\n";
-      for (int i = 0; i < clusterLengths_.size(); i++) {
-          hist_.sample(clusterLengths_[i]);
-          outputFile_<< i+1 << "\t"<< clusterLengths_[i]<< "\n";
-      }
-      outputFile_.close();
-
-      fileMaster().openOutputFile(outputFileName(".hist"), outputFile_);
-      hist_.output(outputFile_);
       outputFile_.close();
    }
 
