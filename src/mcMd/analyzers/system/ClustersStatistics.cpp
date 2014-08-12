@@ -217,7 +217,19 @@ namespace McMd
                  }
              }              // Atom loop.
          }                  // Molecule loop.
-      }                     // If is at interval.
+
+      System::MoleculeIterator molIter;
+      fileMaster().openOutputFile(outputFileName(".clusters"), outputFile_);
+      for (int i = 0; i < clusterLengths_.size(); i++) {
+          outputFile_<< i << "\t\t";
+          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
+              if(clusters_[molIter->id()].clusterId_ == i) outputFile_<< molIter->id()<<"\t";
+          }
+          outputFile_<<"\n";
+      }
+      outputFile_.close();
+
+      }
    }
 
    /*
@@ -237,17 +249,6 @@ namespace McMd
       }
       outputFile_.close();
 
-      System::MoleculeIterator molIter;
-      fileMaster().openOutputFile(outputFileName(".clusters"), outputFile_);
-      for (int i = 0; i < clusterLengths_.size(); i++) {
-          outputFile_<< i << "\t\t";
-          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
-              if(clusters_[molIter->id()].clusterId_ == i) outputFile_<< molIter->id()<<"\t";
-          }
-          outputFile_<<"\n";
-      }
-      outputFile_.close();
-  
       fileMaster().openOutputFile(outputFileName(".hist"), outputFile_);
       hist_.output(outputFile_);
       outputFile_.close();
