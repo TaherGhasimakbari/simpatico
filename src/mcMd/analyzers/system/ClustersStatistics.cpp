@@ -225,38 +225,38 @@ namespace McMd
              }              // Atom loop.
          }                  // Molecule loop.
 
-      std::string fileName;
-      fileName  = outputFileName();
-      fileName += toString(iStep);
-      fileName += ".clusters";
-      fileMaster().openOutputFile(fileName, outputFile_);
-      for (int i = 0; i < clusterLengths_.size(); i++) {
-          outputFile_<<"Cluster "<< i+1<<"includes molecules:"<< "\n";
-          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
-              if(clusters_[molIter->id()].clusterId_ == i) outputFile_<< molIter->id()<<"\t";
-          }
-          outputFile_<<"\n\n\n";
-      }
-      outputFile_.close();
+         std::string fileName;
+         fileName  = outputFileName();
+         fileName += toString(iStep);
+         fileName += ".clusters";
+         fileMaster().openOutputFile(fileName, outputFile_);
+         for (int i = 0; i < clusterLengths_.size(); i++) {
+             outputFile_<<"Cluster "<< i+1<<"includes molecules:"<< "\n";
+             for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
+                 if(clusters_[molIter->id()].clusterId_ == i) outputFile_<< molIter->id()<<"\t";
+             }
+             outputFile_<<"\n\n\n";
+         }
+         outputFile_.close();
 
-      fileName  = outputFileName();
-      fileName += toString(iStep);
-      fileName += ".dat";
-      fileMaster().openOutputFile(fileName, outputFile_);
-      outputFile_ << "Cluster Id" <<"\t"<< "Number of Molecules" <<"\n";
-      for (int i = 0; i < clusterLengths_.size(); i++) {
-          hist_.sample(clusterLengths_[i]);
-          outputFile_<< i+1 << "\t"<< clusterLengths_[i]<< "\n";
-      }
-      outputFile_.close();
+         fileName  = outputFileName();
+         fileName += toString(iStep);
+         fileName += ".dat";
+         fileMaster().openOutputFile(fileName, outputFile_);
+         outputFile_ << "Cluster Id" <<"\t"<< "Number of Molecules" <<"\n";
+         for (int i = 0; i < clusterLengths_.size(); i++) {
+             hist_.sample(clusterLengths_[i]);
+             outputFile_<< i+1 << "\t"<< clusterLengths_[i]<< "\n";
+         }
+         outputFile_.close();
 
-      fileName  = outputFileName();
-      fileName += toString(iStep);
-      fileName += ".hist";
-      fileMaster().openOutputFile(fileName, outputFile_);
-      hist_.output(outputFile_);
-      outputFile_.close();
-      ++nSample_;
+         fileName  = outputFileName();
+         fileName += toString(iStep);
+         fileName += ".hist";
+         fileMaster().openOutputFile(fileName, outputFile_);
+         hist_.output(outputFile_);
+         outputFile_.close();
+         ++nSample_;
       }
    }
 
