@@ -105,8 +105,15 @@ namespace McMd
       /// Number of samples per block average output
       int  capacity_;
 
+      /// Number of samples per block average output
+      int  nSamplePerBlock_;
+
       /// Has readParam been called?
       long  isInitialized_;
+
+      /// Keeps track of number of samples in the average block! 
+      int counter_;
+      double element_;
 
       using SystemAnalyzer<SystemType>::readInterval;
       using SystemAnalyzer<SystemType>::readOutputFileName;
@@ -130,6 +137,7 @@ namespace McMd
       accumulator_(),
       temperature_(1),
       capacity_(-1),
+      nSamplePerBlock_(1),
       isInitialized_(false)
    {}
 
@@ -143,6 +151,7 @@ namespace McMd
       readOutputFileName(in);
       read(in,"temperature", temperature_);
       read(in,"capacity", capacity_);
+      read(in,"nSamplePerBlock", nSamplePerBlock_);
 
       accumulator_.setParam(capacity_);
       accumulator_.clear();
@@ -160,6 +169,7 @@ namespace McMd
 
       loadParameter(ar, "temperature", temperature_);
       loadParameter(ar, "capacity", capacity_);
+      loadParameter(ar, "nSamplePerBlock", nSamplePerBlock_);
       ar & accumulator_;
 
       if (accumulator_.bufferCapacity() != capacity_) {
@@ -187,6 +197,7 @@ namespace McMd
       Analyzer::serialize(ar, version);
       ar & temperature_;
       ar & capacity_;
+      ar & nSamplePerBlock_;
       ar & accumulator_;
    }
 
@@ -196,10 +207,12 @@ namespace McMd
    template <class SystemType>
    void SStressAutoCorrelation<SystemType>::setup() 
    {
+      counter_ = 0;
+      element_ = 0;
+      accumulator_.clear(); 
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized");
       }  
-      accumulator_.clear(); 
    }
 
    /* 
@@ -217,8 +230,6 @@ namespace McMd
          sys.computeStress(pressure);
          volume = sys.boundary().volume();
 
-         double element;
-
          Tensor total;
          Tensor virial;
          Tensor kinetic;
@@ -227,8 +238,16 @@ namespace McMd
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
 
-         element = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature_);
-         accumulator_.sample(element);
+         element_ += (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/temperature_);
+
+         counter_ += 1;
+         if (counter_ == nSamplePerBlock_) {
+            element_ = element_ / nSamplePerBlock_;
+            accumulator_.sample(element_);
+            counter_ = 0;
+            element_ = 0.0;
+         }
+
      }
    }
 

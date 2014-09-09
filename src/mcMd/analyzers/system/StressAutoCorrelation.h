@@ -105,8 +105,15 @@ namespace McMd
       /// Number of samples per block average output
       int  capacity_;
 
+      /// Number of samples per block average output
+      int  nSamplePerBlock_;
+
       /// Has readParam been called?
       long  isInitialized_;
+      
+      /// Keeps track of number of samples in the average block! 
+      int counter_;
+      DArray<double> elements_;
 
       using SystemAnalyzer<SystemType>::readInterval;
       using SystemAnalyzer<SystemType>::readOutputFileName;
@@ -130,6 +137,7 @@ namespace McMd
       accumulator_(),
       temperature_(1),
       capacity_(-1),
+      nSamplePerBlock_(1),
       isInitialized_(false)
    {}
 
@@ -143,10 +151,12 @@ namespace McMd
       readOutputFileName(in);
       read(in,"temperature", temperature_);
       read(in,"capacity", capacity_);
+      read(in,"nSamplePerBlock", nSamplePerBlock_);
 
       accumulator_.setParam(9, capacity_);
       accumulator_.clear();
 
+      elements_.allocate(9);
       isInitialized_ = true;
    }
 
@@ -160,12 +170,14 @@ namespace McMd
 
       loadParameter(ar, "temperature", temperature_);
       loadParameter(ar, "capacity", capacity_);
+      loadParameter(ar, "nSamplePerBlock", nSamplePerBlock_);
       ar & accumulator_;
 
       if (accumulator_.bufferCapacity() != capacity_) {
          UTIL_THROW("Inconsistent values of capacity");
       }
 
+      elements_.allocate(9);
       isInitialized_ = true;
    }
 
@@ -187,6 +199,7 @@ namespace McMd
       Analyzer::serialize(ar, version);
       ar & temperature_;
       ar & capacity_;
+      ar & nSamplePerBlock_;
       ar & accumulator_;
    }
 
@@ -196,10 +209,14 @@ namespace McMd
    template <class SystemType>
    void StressAutoCorrelation<SystemType>::setup() 
    {
+      counter_ = 0;
+      for (int i = 0;i < 9; i++) {
+          elements_[i] = 0;
+      }
+      accumulator_.clear(); 
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized");
       }  
-      accumulator_.clear(); 
    }
 
    /* 
@@ -216,9 +233,6 @@ namespace McMd
          SystemType& sys=system(); 
          volume = sys.boundary().volume();
 
-         DArray<double> elements;
-         elements.allocate(9);
-
          Tensor total;
          Tensor virial;
          Tensor kinetic;
@@ -226,21 +240,31 @@ namespace McMd
          sys.computeVirialStress(virial);
          sys.computeKineticStress(kinetic);
          total.add(virial, kinetic);
-
+         
          pressure = (total(0,0)+total(1,1)+total(2,2)) / 3.0;
 
-         elements[0] = (total(0,0) - pressure) * sqrt(volume/(10.0 * temperature_));
-         elements[1] = (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
-         elements[2] = (total(0,2) + total(2,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
-         elements[3] = elements[1];
-         elements[4] = (total(1,1) - pressure) * sqrt(volume/(10.0 * temperature_));
-         elements[5] = (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature_));
-         elements[6] = elements[2];
-         elements[7] = elements[5];
-         elements[8] = (total(2,2) - pressure) * sqrt(volume/(10.0 * temperature_));
-
-         accumulator_.sample(elements);
-     }
+         elements_[0] += (total(0,0) - pressure) * sqrt(volume/(10.0 * temperature_));
+         elements_[1] += (total(0,1) + total(1,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
+         elements_[2] += (total(0,2) + total(2,0)) / 2.0 * sqrt(volume/(10.0 * temperature_));
+         elements_[3] += elements_[1];
+         elements_[4] += (total(1,1) - pressure) * sqrt(volume/(10.0 * temperature_));
+         elements_[5] += (total(1,2) + total(2,1)) / 2.0 * sqrt(volume/(10.0 * temperature_));
+         elements_[6] += elements_[2];
+         elements_[7] += elements_[5];
+         elements_[8] += (total(2,2) - pressure) * sqrt(volume/(10.0 * temperature_));
+     
+         counter_ += 1;
+         if (counter_ == nSamplePerBlock_) {
+            for (int i = 0;i < 9; i++) {
+                elements_[i] = elements_[i] / nSamplePerBlock_;
+            }
+            accumulator_.sample(elements_);
+            counter_ = 0;
+            for (int i = 0;i < 9; i++) {
+                elements_[i] = 0.0;
+            }
+         }
+      }
    }
 
    /*

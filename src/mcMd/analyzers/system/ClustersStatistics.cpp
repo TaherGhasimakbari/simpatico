@@ -76,7 +76,7 @@ namespace McMd
           clusters_[i].clusterId_ = -1;
       }
       clusterLengths_.reserve(nMolecule);
- 
+
       read<int>(in,"histMin", histMin_);
       read<int>(in,"histMax", histMax_);
       hist_.setParam(histMin_, histMax_);
@@ -111,8 +111,8 @@ namespace McMd
       if (cutoff_ < 0) {
          UTIL_THROW("Negative cutoff");
       }
-      int nMolecule = speciesPtr_->capacity();
 
+      int nMolecule = speciesPtr_->capacity();
       clusters_.allocate(nMolecule);
       clusterLengths_.reserve(nMolecule);
  
@@ -139,6 +139,19 @@ namespace McMd
       int nAtom = nMolecule * speciesPtr_->nAtom();
       cellList_.allocate(nAtom, system().boundary(), cutoff_);
       nSample_ = 0;
+
+      System::MoleculeIterator molIter;                                             // Loading cellList with atoms.
+      Molecule::AtomIterator atomIter;           
+      for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
+          clusters_[molIter->id()].self_ = molIter.get();
+          for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
+              if (atomIter->typeId() == coreId_) {
+                 system().boundary().shift(atomIter->position());
+                 cellList_.addAtom(*atomIter);
+              }
+          }
+      }
+
       if (!isInitialized_) UTIL_THROW("Object is not initialized");
    }
 
@@ -188,17 +201,7 @@ namespace McMd
          hist_.clear();
 
          System::MoleculeIterator molIter;                                             // Loading cellList with atoms.  
-         Molecule::AtomIterator atomIter;           
-         for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
-             clusters_[molIter->id()].self_ = molIter.get();
-             for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
-                 if (atomIter->typeId() == coreId_) {
-                    system().boundary().shift(atomIter->position());
-                    cellList_.addAtom(*atomIter);
-                 }
-             }              // Atom loop.
-         }                  // Molecule loop.
-         
+         Molecule::AtomIterator atomIter; 
          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
              if (clusters_[molIter->id()].clusterId_ == -1) {
                 findClusters(molIter.get(), clusterId);
@@ -212,7 +215,7 @@ namespace McMd
          }
 
          for (int i = 0; i < nMolecule; i++) {
-             //if ( clusters_[i].clusterId_ == -1 ) UTIL_THROW("Clusterization not completed!");
+             if ( clusters_[i].clusterId_ == -1 ) UTIL_THROW("Clusterization not completed!");
              ++clusterLengths_[clusters_[i].clusterId_];
          }
 
@@ -222,8 +225,8 @@ namespace McMd
                  if (atomIter->typeId() == coreId_) {
                     atomIter->setTypeId(clusters_[molIter->id()].clusterId_);
                  }
-             }              // Atom loop.
-         }                  // Molecule loop.
+             }
+         }
 
          std::string fileName;
          fileName  = outputFileName();

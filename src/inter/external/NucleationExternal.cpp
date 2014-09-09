@@ -27,7 +27,6 @@ namespace Inter
       periodicity_(),
       interfaceWidth_(),
       nucleationClip_(),
-      bias_(),
       boundaryPtr_(0),
       nAtomType_(0), 
       isInitialized_(false)
@@ -43,7 +42,6 @@ namespace Inter
       periodicity_(other.periodicity_),
       interfaceWidth_(other.interfaceWidth_),
       nucleationClip_(other.nucleationClip_),
-      bias_(other.bias_),
       boundaryPtr_(other.boundaryPtr_),
       nAtomType_(other.nAtomType_),
       isInitialized_(other.isInitialized_)
@@ -78,7 +76,6 @@ namespace Inter
       periodicity_         = other.periodicity_;
       interfaceWidth_      = other.interfaceWidth_;
       nucleationClip_      = other.nucleationClip_;
-      bias_                = other.bias_;
       boundaryPtr_         = other.boundaryPtr_;
       nAtomType_           = other.nAtomType_;
       isInitialized_       = other.isInitialized_;
@@ -160,7 +157,6 @@ namespace Inter
       read<double>(in, "interfaceWidth", interfaceWidth_);
       read<int>(in, "periodicity", periodicity_);
       read<double>(in, "nucleationClip", nucleationClip_);
-      read<double>(in, "bias", bias_);
 
       isInitialized_ = true;
    }
@@ -185,7 +181,6 @@ namespace Inter
       loadParameter<double>(ar, "interfaceWidth", interfaceWidth_);
       loadParameter<int>(ar, "periodicity", periodicity_);
       loadParameter<double>(ar, "nucleationClip", nucleationClip_);
-      loadParameter<double>(ar, "bias", bias_);
       isInitialized_ = true;
    }
 
@@ -204,7 +199,6 @@ namespace Inter
       ar << interfaceWidth_;
       ar << periodicity_;
       ar << nucleationClip_;
-      ar << bias_;
    }
 
 
