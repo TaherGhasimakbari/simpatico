@@ -223,11 +223,9 @@ namespace McMd
    {
       if (isAtInterval(iStep)){
 
-         double pressure;
          double volume;
 
          SystemType& sys=system(); 
-         sys.computeStress(pressure);
          volume = sys.boundary().volume();
 
          Tensor total;
@@ -247,8 +245,7 @@ namespace McMd
             counter_ = 0;
             element_ = 0.0;
          }
-
-     }
+      }
    }
 
    /*
