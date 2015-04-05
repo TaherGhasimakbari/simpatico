@@ -44,10 +44,10 @@ namespace Inter
       for (int i=0; i < nAtomType_; ++i) {
         prefactor_[i] = other.prefactor_[i];
       }
-      waveVectors_.allocate(nWaveVectors_);
+      waveIntVectors_.allocate(nWaveVectors_);
       for (int j=0; j < Dimension; ++j) {
         for (int i=0; i < nWaveVectors_; ++i) {
-          waveVectors_[i][j] = other.waveVectors_[i][j];
+          waveIntVectors_[i][j] = other.waveIntVectors_[i][j];
         }
       }
       phases_.allocate(nWaveVectors_);
@@ -77,7 +77,7 @@ namespace Inter
       }
       for (int j=0; j < Dimension; ++j) {
         for (int i=0; i < nWaveVectors_; ++i) {
-          waveVectors_[i][j] = other.waveVectors_[i][j];
+          waveIntVectors_[i][j] = other.waveIntVectors_[i][j];
         }
       }
       phases_.allocate(nWaveVectors_);
@@ -176,7 +176,7 @@ namespace Inter
       ar << externalParameter_;
       ar << nWaveVectors_;
       ar << C_;
-      ar << waveVectors_;
+      ar << waveIntVectors_;
       ar << phases_;
       ar << shift_;
       ar << interfaceWidth_;

@@ -23,6 +23,7 @@
 #include <inter/external/PeriodicExternal.h>
 #include <inter/external/GeneralPeriodicExternal.h>
 #include <inter/external/NucleationExternal.h>
+#include <inter/external/HoomdExternal.h>
 
 namespace DdMd
 {
@@ -75,6 +76,9 @@ namespace DdMd
       } else
       if (name == "NucleationExternal") {
          ptr = new ExternalPotentialImpl<NucleationExternal>(*simulationPtr_);
+      } else
+      if (name == "HoomdExternal") {
+         ptr = new ExternalPotentialImpl<HoomdExternal>(*simulationPtr_);
       }
       return ptr;
    }

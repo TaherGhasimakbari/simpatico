@@ -37,6 +37,7 @@
 #include <mcMd/potentials/link/LinkFactory.cpp>
 #endif
 
+#include <hoomd/hoomd_config.h>
 #include <hoomd/HOOMDMath.h>
 #include <hoomd/ParticleData.h>
 #include <hoomd/ForceCompute.h>

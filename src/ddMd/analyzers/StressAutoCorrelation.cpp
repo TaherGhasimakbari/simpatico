@@ -22,7 +22,6 @@ namespace DdMd
     : AutoCorrAnalyzer<Tensor, double>(simulation)
    {  setClassName("StressAutoCorrelation"); }
 
-
    /*
    * Sample the stress tensor.
    */

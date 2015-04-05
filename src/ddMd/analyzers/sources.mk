@@ -23,6 +23,7 @@ ddMd_analyzers_=\
      ddMd/analyzers/VirialStressTensor.cpp\
      ddMd/analyzers/StructureFactor.cpp\
      ddMd/analyzers/StructureFactorGrid.cpp\
+     ddMd/analyzers/TStructureFactorGrid.cpp\
      ddMd/analyzers/VanHove.cpp\
      ddMd/analyzers/StressAutoCorr.cpp\
      ddMd/analyzers/StressAutoCorrelation.cpp\

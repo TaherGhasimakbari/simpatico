@@ -55,7 +55,7 @@ Simulation{
     seed        8012457890
   }
   AnalyzerManager{
-     baseInterval  1000
+     baseInterval  1
 
      LogEnergy{
         interval  20000
@@ -64,6 +64,18 @@ Simulation{
      OutputEnergy{
         interval          1000
         outputFileName  energy
+     }
+
+     StressAutoCorrelation{
+        interval            10
+        outputFileName  Stress
+        capacity          1000
+     }
+
+     SStressAutoCorrelation{
+        interval            10
+        outputFileName SStress
+        capacity          1000
      }
   }
 }

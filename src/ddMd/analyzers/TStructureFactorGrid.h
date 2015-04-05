@@ -1,17 +1,17 @@
-#ifndef MCMD_STRUCTURE_FACTOR_GRID_H
-#define MCMD_STRUCTURE_FACTOR_GRID_H
+#ifndef DDMD_TSTRUCTURE_FACTOR_GRID_H
+#define DDMD_TSTRUCTURE_FACTOR_GRID_H
 
 /*
 * Simpatico - Simulation Package for Polymeric and Molecular Liquids
 *
-* Copyright 2010, The Regents of the University of Minnesota
+* Copyright 2010 - 2012, David Morse (morse012@umn.edu)
 * Distributed under the terms of the GNU General Public License.
 */
 
 #include "StructureFactor.h"
 #include <util/crystal/LatticeSystem.h>
 
-namespace McMd
+namespace DdMd
 {
 
    using namespace Util;
@@ -54,11 +54,9 @@ namespace McMd
    * structure factor values for the wavevector, one for each 
    * atomTypeId pair.
    * 
-   * \sa \ref mcMd_analyzer_StructureFactorGrid_page "parameter file format"
-   *
-   * \ingroup McMd_Analyzer_McMd_Module
+   * \ingroup DdMd_Analyzer_Module
    */
-   class StructureFactorGrid : public StructureFactor
+   class TStructureFactorGrid : public StructureFactor
    {
 
    public:
@@ -66,9 +64,9 @@ namespace McMd
       /**	
       * Constructor.
       *
-      * \param system reference to parent System object
+      * \param simulation reference to parent DdMd::Simulation object
       */
-      StructureFactorGrid(System &system);
+      TStructureFactorGrid(Simulation &simulation);
 
       /**
       * Read parameters from file.
@@ -80,43 +78,30 @@ namespace McMd
       *   - int               nMode           number of modes
       *   - DMatrix<double>   modes           mode vectors
       *   - int               hMax            maximum Miller index
+      *   - LatticeSystem     lattice         lattice system (string)
       *
       * \param in input parameter stream
       */
       virtual void readParameters(std::istream& in);
 
       /**
-      * Load state from an archive.
+      * Load internal state from an archive.
       *
-      * \param ar loading (input) archive.
+      * \param ar input/loading archive
       */
-      virtual void loadParameters(Serializable::IArchive& ar);
+      virtual void loadParameters(Serializable::IArchive &ar);
 
       /**
-      * Save state to archive.
+      * Save internal state to an archive.
       *
-      * \param ar saving (output) archive.
+      * \param ar output/saving archive
       */
-      virtual void save(Serializable::OArchive& ar);
-
-      /**
-      * Serialize to/from an archive. 
-      *
-      * \param ar      saving or loading archive
-      * \param version archive version id
-      */
-      template <class Archive>
-      void serialize(Archive& ar, const unsigned int version);
-
+      virtual void save(Serializable::OArchive &ar);
+  
       /**
       * Set up before a simulation.
       */
-      virtual void setup();
-
-      /**
-      * Output structure factors, averaged over stars.
-      */
-      virtual void output();
+      virtual void clear();
 
       /**
       * Add particles to StructureFactor accumulators.
@@ -124,6 +109,11 @@ namespace McMd
       * \param iStep step counter
       */
       virtual void sample(long iStep);
+
+      /**
+      * Output structure factors, averaged over stars.
+      */
+      virtual void output();
 
    private:
 
@@ -139,31 +129,12 @@ namespace McMd
       /// Number of stars of symmetry related wavevectors.
       int nStar_;
 
-      /// Lattice system used to create stars.
-      LatticeSystem lattice_;
-
       /// Has readParam been called?
       bool isInitialized_;
-
+     
       /// Log file
       std::ofstream logFile_;
    };
-
-
-   /*
-   * Serialize to/from an archive. 
-   */
-   template <class Archive>
-   void StructureFactorGrid::serialize(Archive& ar, const unsigned int version)
-   {
-      StructureFactor::serialize(ar, version);
-      ar & hMax_;
-      //serializeEnum(ar, lattice_);
-      ar & lattice_;
-      ar & nStar_;
-      ar & starIds_;
-      ar & starSizes_;
-   }
 
 }
 #endif
