@@ -117,22 +117,14 @@ namespace McMd
       /// Statistical accumulator.
       AutoCorrelation<Tensor, double>  accumulator_;
 
-      /// Thermodynamic temperature
-      double  temperature_;
-
       /// Number of samples per block average output
       int  capacity_;
 
-<<<<<<< HEAD:src/mcMd/analyzers/system/StressAutoCorr.h
       /// Maximum id for AutoCorrStage
       int  maxStageId_;
 
       /// BlockFactor for AutoCorrStage algorithm
       int  blockFactor_;
-=======
-      /// Number of samples per block average output
-      int  nSamplePerBlock_;
->>>>>>> 1372132972b815e63485200d417113ac6a634c4f:src/mcMd/analyzers/system/StressAutoCorrelation.h
 
       /// Has readParam been called?
       long  isInitialized_;
@@ -151,15 +143,9 @@ namespace McMd
     : SystemAnalyzer<SystemType>(system),
       outputFile_(),
       accumulator_(),
-<<<<<<< HEAD:src/mcMd/analyzers/system/StressAutoCorr.h
       capacity_(64),
       maxStageId_(10),
       blockFactor_(2),
-=======
-      temperature_(1),
-      capacity_(-1),
-      nSamplePerBlock_(1),
->>>>>>> 1372132972b815e63485200d417113ac6a634c4f:src/mcMd/analyzers/system/StressAutoCorrelation.h
       isInitialized_(false)
    {}
 
@@ -178,19 +164,12 @@ namespace McMd
    {
       readInterval(in);
       readOutputFileName(in);
-<<<<<<< HEAD:src/mcMd/analyzers/system/StressAutoCorr.h
       read(in, "capacity", capacity_);
       readOptional(in, "maxStageId", maxStageId_);
-=======
-      read(in,"temperature", temperature_);
-      read(in,"capacity", capacity_);
-      read(in,"nSamplePerBlock", nSamplePerBlock_);
->>>>>>> 1372132972b815e63485200d417113ac6a634c4f:src/mcMd/analyzers/system/StressAutoCorrelation.h
 
       accumulator_.setParam(capacity_, maxStageId_, blockFactor_);
       accumulator_.clear();
 
-      elements_.allocate(9);
       isInitialized_ = true;
    }
 
@@ -202,16 +181,13 @@ namespace McMd
    {
       Analyzer::loadParameters(ar);
 
-      loadParameter(ar, "temperature", temperature_);
       loadParameter(ar, "capacity", capacity_);
-      loadParameter(ar, "nSamplePerBlock", nSamplePerBlock_);
       ar & accumulator_;
 
       if (accumulator_.bufferCapacity() != capacity_) {
          UTIL_THROW("Inconsistent values of capacity");
       }
 
-      elements_.allocate(9);
       isInitialized_ = true;
    }
 
@@ -233,9 +209,7 @@ namespace McMd
                                       const unsigned int version)
    {
       Analyzer::serialize(ar, version);
-      ar & temperature_;
       ar & capacity_;
-      ar & nSamplePerBlock_;
       ar & accumulator_;
    }
 
@@ -245,14 +219,10 @@ namespace McMd
    template <class SystemType>
    void StressAutoCorr<SystemType>::setup() 
    {
-      counter_ = 0;
-      for (int i = 0;i < 9; i++) {
-          elements_[i] = 0;
-      }
-      accumulator_.clear(); 
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized");
-      }  
+      }
+      accumulator_.clear(); 
    }
 
    /* 
