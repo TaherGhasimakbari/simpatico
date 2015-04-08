@@ -135,8 +135,8 @@ namespace Inter
       read<double>(in, "externalParameter", externalParameter_);
       read<int>(in, "nWaveVectors", nWaveVectors_);
       read<double>(in, "C", C_);
-      waveVectors_.allocate(nWaveVectors_);
-      readDArray<Vector>(in, "waveVectors", waveVectors_, nWaveVectors_);
+      waveIntVectors_.allocate(nWaveVectors_);
+      readDArray<IntVector>(in, "waveIntVectors", waveIntVectors_, nWaveVectors_);
       phases_.allocate(nWaveVectors_);
       readDArray<double>(in, "phases", phases_, nWaveVectors_);
       read<Vector>(in, "shift", shift_);
@@ -157,8 +157,8 @@ namespace Inter
       loadParameter<double>(ar, "externalParameter", externalParameter_);
       loadParameter<int>(ar, "nWavevectors", nWaveVectors_);
       loadParameter<double>(ar, "C", C_);
-      waveVectors_.allocate(nWaveVectors_);
-      loadDArray<Vector>(ar, "waveVectors", waveVectors_, nWaveVectors_);
+      waveIntVectors_.allocate(nWaveVectors_);
+      loadDArray<IntVector>(ar, "waveIntVectors", waveIntVectors_, nWaveVectors_);
       phases_.allocate(nWaveVectors_);
       loadDArray<double>(ar, "phases", phases_, nWaveVectors_);
       loadParameter<Vector>(ar, "shift", shift_);

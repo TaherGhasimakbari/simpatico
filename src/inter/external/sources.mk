@@ -7,7 +7,6 @@ inter_external_=\
     inter/external/SimplePeriodicExternal.cpp \
     inter/external/GeneralPeriodicExternal.cpp \
     inter/external/NucleationExternal.cpp \
-    inter/external/HoomdExternal.cpp \
     inter/external/PeriodicExternal.cpp
 
 inter_external_SRCS=\

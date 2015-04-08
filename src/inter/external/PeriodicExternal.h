@@ -11,7 +11,7 @@
 #include <util/boundary/Boundary.h>
 #include <ddMd/simulation/Simulation.h>
 #include <util/space/Dimension.h>
-#include <util/space/Vector.h>
+#include <util/space/IntVector.h>
 #include <util/param/ParamComposite.h>
 #include <util/global.h>
 #include <cmath>
