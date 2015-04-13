@@ -143,7 +143,7 @@ namespace Inter
    private:
    
       /// Maximum allowed value for nAtomType (# of particle types).
-      static const int MaxAtomType = 3;
+      static const int MaxAtomType = 4;
 
       /// Prefactor array ofsize nAtomType.
       DArray<double> prefactor_;
