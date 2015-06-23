@@ -142,7 +142,7 @@ namespace Inter
    private:
    
       /// Maximum allowed value for nAtomType (# of particle types).
-      static const int MaxAtomType = 3;
+      static const int MaxAtomType = 4;
 
       /// Prefactor array ofsize nAtomType.
       DArray<double> prefactor_;
@@ -154,7 +154,7 @@ namespace Inter
       int  nWaveVectors_;
 
       /// Array of Miller index IntVectors for the reciprocal lattice vectors.
-      DArray<Vector>  waveVectors_;
+      DArray<IntVector>  waveIntVectors_;
 
       /// Phases for the different plane waves.
       DArray<double> phases_;
@@ -197,9 +197,9 @@ namespace Inter
       double cosine = 0.0;
       for (int i = 0; i < nWaveVectors_; ++i) {
          Vector q;
-         q[0] = 2.0*M_PI*periodicity_*waveVectors_[i][0]/cellLengths[0];
-         q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
-         q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
+         q[0] = 2.0*M_PI*periodicity_*waveIntVectors_[i][0]/cellLengths[0];
+         q[1] = 2.0*M_PI*periodicity_*waveIntVectors_[i][1]/cellLengths[1]; 
+         q[2] = 2.0*M_PI*periodicity_*waveIntVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
          cosine += cos(arg);
       }
@@ -224,9 +224,9 @@ namespace Inter
       deriv.zero();
       for (int i = 0; i < nWaveVectors_; ++i) {
          Vector q;
-         q[0] = 2.0*M_PI*periodicity_*waveVectors_[i][0]/cellLengths[0];
-         q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
-         q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
+         q[0] = 2.0*M_PI*periodicity_*waveIntVectors_[i][0]/cellLengths[0];
+         q[1] = 2.0*M_PI*periodicity_*waveIntVectors_[i][1]/cellLengths[1]; 
+         q[2] = 2.0*M_PI*periodicity_*waveIntVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
          cosine += cos(arg);
          double sine = -1.0*sin(arg);
