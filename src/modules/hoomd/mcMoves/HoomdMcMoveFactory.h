@@ -1,6 +1,7 @@
 #ifndef HOOMD_MC_MOVE_FACTORY_H
 #define HOOMD_MC_MOVE_FACTORY_H
 
+#include <hoomd/hoomd_config.h>
 #include <mcMd/mcMoves/McMoveFactory.h>
 
 namespace McMd

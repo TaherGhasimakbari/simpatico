@@ -62,7 +62,6 @@ namespace DdMd
 
       virtual void computeData();
       virtual Tensor data();
-
    };
 
 }

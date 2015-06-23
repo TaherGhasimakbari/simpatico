@@ -76,7 +76,6 @@ namespace McMd
           clusters_[i].clusterId_ = -1;
       }
       clusterLengths_.reserve(nMolecule);
- 
       read<int>(in,"histMin", histMin_);
       read<int>(in,"histMax", histMax_);
       hist_.setParam(histMin_, histMax_);
@@ -111,8 +110,8 @@ namespace McMd
       if (cutoff_ < 0) {
          UTIL_THROW("Negative cutoff");
       }
-      int nMolecule = speciesPtr_->capacity();
 
+      int nMolecule = speciesPtr_->capacity();
       clusters_.allocate(nMolecule);
       clusterLengths_.reserve(nMolecule);
  
@@ -139,6 +138,19 @@ namespace McMd
       int nAtom = nMolecule * speciesPtr_->nAtom();
       cellList_.allocate(nAtom, system().boundary(), cutoff_);
       nSample_ = 0;
+
+      System::MoleculeIterator molIter;                                             // Loading cellList with atoms.
+      Molecule::AtomIterator atomIter;           
+      for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
+          clusters_[molIter->id()].self_ = molIter.get();
+          for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
+              if (atomIter->typeId() == coreId_) {
+                 system().boundary().shift(atomIter->position());
+                 cellList_.addAtom(*atomIter);
+              }
+          }
+      }
+
       if (!isInitialized_) UTIL_THROW("Object is not initialized");
    }
 
@@ -158,7 +170,7 @@ namespace McMd
           if (atomIter->typeId() == coreId_) {                                         // Checks the atomType to make sure it has the right Type.
             cellList_.getNeighbors(atomIter->position(), aNeighbors);                  // Takes neighbors of molecules atom out of cellList.
                //std::cout<<aNeighbors.size()<<"\n";   
-        for (int i = 0; i < aNeighbors.size(); i++) {
+          for (int i = 0; i < aNeighbors.size(); i++) {
                    //std::cout<<clusters_[aNeighbors[i]->molecule().id()].clusterId_<<"\n";
                 if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ == -1) {
                    //std::cout<<aNeighbors[i]->molecule().id()<<"\t"<<clusterId<<"\n";
@@ -166,7 +178,7 @@ namespace McMd
                    //std::cout<<aNeighbors[i]->molecule().id()<<"\t"<<clusterId<<"\n";
                    mNeighbors.append(aNeighbors[i]->molecule().id());               // Adds neighbor molecule to list of neighbors.
                 } else if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ != clusterId) UTIL_THROW("Cluster Clash!"); 
-            } 
+          } 
           }
       }
       
@@ -221,9 +233,9 @@ namespace McMd
          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
               //std::cout<<clusters_[molIter->id()].clusterId_<<"\n";
               if (clusters_[molIter->id()].clusterId_ == -1) {
-                findClusters(molIter.get(), clusterId);
-                clusterId++;
-             }
+                 findClusters(molIter.get(), clusterId);
+                 clusterId++;
+              }
          }
           
          clusterLengths_.resize(clusterId);

@@ -1,0 +1,19 @@
+mpicxx  -fPIC -O3 -ffast-math -Wall --std=c++98 -Winline -I/home/morsedc/tghasi/Simpatico/src -I/home/morsedc/tghasi/hoomd-install/include -I/usr/local/cuda-5.5/include -I/soft/python/2.7.1/bin -I/local/include/boost  -DUTIL_MPI  -DINTER_BOND -DINTER_EXTERNAL  -DMCMD_PERTURB -DENABLE_CUDA -DSINGLE_PRECISION -c -o /home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.o /home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp
+In file included from /home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.h:25,
+                 from /home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp:11:
+/home/morsedc/tghasi/hoomd-install/include/hoomd/hoomd_config.h:5:1: warning: "ENABLE_CUDA" redefined
+<command-line>: warning: this is the location of the previous definition
+/home/morsedc/tghasi/hoomd-install/include/hoomd/hoomd_config.h:8:1: warning: "SINGLE_PRECISION" redefined
+<command-line>: warning: this is the location of the previous definition
+In file included from /home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp:26:
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/potentials/pair/HoomdPairFactory.h: In static member function ‘static boost::shared_ptr<ForceCompute> McMd::HoomdPairFactory::hoomdFactoryImpl(McMd::HoomdPairPotential*, McMd::System&, boost::shared_ptr<SystemDefinition>, boost::shared_ptr<NeighborList>&, double)’:
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/potentials/pair/HoomdPairFactory.h:139: error: ‘class NeighborListGPUBinned’ has no member named ‘setBlockSize’
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/potentials/pair/HoomdPairFactory.h:140: error: ‘class NeighborListGPUBinned’ has no member named ‘setBlockSizeFilter’
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp: In member function ‘void McMd::HoomdMove::initSimulation()’:
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp:337: error: ‘class McMd::McSystem’ has no member named ‘implementExternalPotential’
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp: In member function ‘void McMd::HoomdMove::addBonds()’:
+/home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.cpp:425: error: ‘class BondedGroupData<2u, Bond, ((const char*)((char*)(& name_bond_data)))>’ has no member named ‘addBond’
+make[1]: *** [/home/morsedc/tghasi/Simpatico/src/modules/hoomd/mcMoves/HoomdMove.o] Error 1
+make[1]: Leaving directory `/panfs/roc/groups/7/morsedc/tghasi/Simpatico/src/modules/hoomd'
+make: *** [all] Error 2
+
