@@ -157,6 +157,9 @@ namespace Inter
       DArray<Vector>  waveVectors_;
 
       /// Phases for the different plane waves.
+      DArray<double> amplitudes_;
+
+      /// Phases for the different plane waves.
       DArray<double> phases_;
 
       /// Prefactor array ofsize nAtomType.
@@ -201,7 +204,7 @@ namespace Inter
          q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
          q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
-         cosine += cos(arg);
+         cosine += amplitudes_[i]*cos(arg);
       }
       cosine *= clipParameter;
       return prefactor_[type]*externalParameter_*tanh(C_+cosine);
@@ -228,8 +231,8 @@ namespace Inter
          q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
          q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
-         cosine += cos(arg);
-         double sine = -1.0*sin(arg);
+         cosine += amplitudes_[i]*cos(arg);
+         double sine = -1.0*amplitudes_[i]*sin(arg);
          q *= sine;
          deriv += q;
       }
