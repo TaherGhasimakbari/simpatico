@@ -1,5 +1,10 @@
 mcMd_analyzers_system_=\
     mcMd/analyzers/system/AtomMSD.cpp \
+    mcMd/analyzers/system/BondLengthDist.cpp \
+    mcMd/analyzers/system/BlockRadiusGyration.cpp \
+    mcMd/analyzers/system/ClustersFinder.cpp \
+    mcMd/analyzers/system/ClustersStatistics.cpp \
+    mcMd/analyzers/system/ClustersDynamics.cpp \
     mcMd/analyzers/system/ComMSD.cpp \
     mcMd/analyzers/system/CompositionProfile.cpp \
     mcMd/analyzers/system/RDF.cpp \

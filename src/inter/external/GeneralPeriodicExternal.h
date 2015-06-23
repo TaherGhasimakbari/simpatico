@@ -154,7 +154,7 @@ namespace Inter
       int  nWaveVectors_;
 
       /// Array of Miller index IntVectors for the reciprocal lattice vectors.
-      DArray<Vector>  waveVectors_;
+      DArray<IntVector>  waveIntVectors_;
 
       /// Phases for the different plane waves.
       DArray<double> phases_;
@@ -201,9 +201,9 @@ namespace Inter
          }
          r -= a;
          Vector q;
-         q[0] = 2.0*M_PI*periodicity_*waveVectors_[i][0]/cellLengths[0];
-         q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
-         q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
+         q[0] = 2.0*M_PI*periodicity_*waveIntVectors_[i][0]/cellLengths[0];
+         q[1] = 2.0*M_PI*periodicity_*waveIntVectors_[i][1]/cellLengths[1]; 
+         q[2] = 2.0*M_PI*periodicity_*waveIntVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
          cosine += prefactor_[i*nAtomType_ + type]*cos(arg);
       }
@@ -235,9 +235,9 @@ namespace Inter
          }
          r -= a;
          Vector q;
-         q[0] = 2.0*M_PI*periodicity_*waveVectors_[i][0]/cellLengths[0];
-         q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
-         q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
+         q[0] = 2.0*M_PI*periodicity_*waveIntVectors_[i][0]/cellLengths[0];
+         q[1] = 2.0*M_PI*periodicity_*waveIntVectors_[i][1]/cellLengths[1]; 
+         q[2] = 2.0*M_PI*periodicity_*waveIntVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
          cosine += prefactor_[i*nAtomType_ + type]*cos(arg);
          double sine = -1.0*sin(arg);
