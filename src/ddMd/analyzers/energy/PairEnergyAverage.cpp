@@ -128,10 +128,18 @@ namespace DdMd
    void PairEnergyAverage::output()
    {
       if (simulation().domain().isMaster()) {
-         simulation().fileMaster().openOutputFile(outputFileName(".prm"), outputFile_);
+         std::string suffix1;
+         std::string suffix2;
+         suffix1 = toString(pairs_[0]);
+         suffix2 = toString(pairs_[0]);
+         suffix1 += toString(pairs_[1]);
+         suffix2 += toString(pairs_[1]);
+         suffix1 += ".prm";
+         suffix2 += ".ave";
+         simulation().fileMaster().openOutputFile(outputFileName(suffix1), outputFile_);
          ParamComposite::writeParam(outputFile_);
          outputFile_.close();
-         simulation().fileMaster().openOutputFile(outputFileName(".ave"), outputFile_);
+         simulation().fileMaster().openOutputFile(outputFileName(suffix2), outputFile_);
          accumulator_->output(outputFile_);
          outputFile_.close();
       }
