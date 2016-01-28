@@ -202,7 +202,9 @@ namespace Tools
             } 
             #endif
             else {
-               UTIL_THROW("Unknown node name");
+               std::string msg = "Unknown node name ";
+               msg += name;
+               UTIL_THROW(msg.c_str());
             }
 
          } else {

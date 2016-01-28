@@ -67,7 +67,7 @@ inline void HoomdConfigReaderTest::testReadConfig()
    file.close(); 
 
    // Read auxiliary file
-   openInputFile("in/config.hoomd", file);
+   openInputFile("in/config", file);
    processor_.readConfig(file);
    file.close(); 
 

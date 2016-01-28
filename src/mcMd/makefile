@@ -65,6 +65,12 @@ $(MCSIM_EXE): $(MCSIM).o $(LIBS)
 $(MDSIM_EXE): $(MDSIM).o $(LIBS)
 	$(CXX) $(LDFLAGS) -o $(MDSIM_EXE) $(MDSIM).o $(LIBS)
 
+StressPP: $(MCSIM).o $(LIBS)
+	$(CXX) $(LDFLAGS) -o StressPP user/stressPostProcessor.o $(LIBS)
+
+StressMPI: $(MCSIM).o $(LIBS)
+	$(CXX) $(LDFLAGS) -o StressMPI user/stressPostProcessorMPI.o $(LIBS)
+
 # Short names for executable targets (for convenience)
  
 mcSim:
