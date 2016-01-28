@@ -15,7 +15,7 @@
 #include <mcMd/chemistry/Molecule.h>
 #include <mcMd/chemistry/Atom.h>
 #include <util/boundary/Boundary.h>
-#include <util/misc/FileMaster.h>        
+#include <util/misc/FileMaster.h>
 #include <util/archives/Serializable_includes.h>
 
 #include <util/format/Dbl.h>
@@ -28,7 +28,7 @@ namespace McMd
    using namespace Util;
 
    /// Constructor.
-   ClustersStatistics::ClustersStatistics(System& system) 
+   ClustersStatistics::ClustersStatistics(System& system)
     : SystemAnalyzer<System>(system),
       outputFile_(),
       speciesId_(),
@@ -45,7 +45,7 @@ namespace McMd
    {  setClassName("ClustersStatistics"); }
 
    /// Read parameters from file, and allocate arrays.
-   void ClustersStatistics::readParameters(std::istream& in) 
+   void ClustersStatistics::readParameters(std::istream& in)
    {
       readInterval(in);
       readOutputFileName(in);
@@ -63,7 +63,7 @@ namespace McMd
       if (coreId_ < 0) {
          UTIL_THROW("Negative coreId");
       }
-      
+
       read<double>(in, "cutoff", cutoff_);
       if (cutoff_ < 0) {
          UTIL_THROW("Negative cutoff");
@@ -71,7 +71,7 @@ namespace McMd
       int nMolecule = speciesPtr_->capacity();
 
       clusters_.allocate(nMolecule);
-      for(int i = 0; i < nMolecule; ++i) { 
+      for (int i = 0; i < nMolecule; ++i) {
           clusters_[i].self_ = 0;
           clusters_[i].clusterId_ = -1;
       }
@@ -114,7 +114,7 @@ namespace McMd
       int nMolecule = speciesPtr_->capacity();
       clusters_.allocate(nMolecule);
       clusterLengths_.reserve(nMolecule);
- 
+
       loadParameter<int>(ar,"histMin", histMin_);
       loadParameter<int>(ar,"histMax", histMax_);
       hist_.setParam(histMin_, histMax_);
@@ -132,15 +132,15 @@ namespace McMd
    /*
    * Clear accumulators.
    */
-   void ClustersStatistics::setup() 
-   {  
+   void ClustersStatistics::setup()
+   {
       int nMolecule = system().nMolecule(speciesId_);
       int nAtom = nMolecule * speciesPtr_->nAtom();
       cellList_.allocate(nAtom, system().boundary(), cutoff_);
       nSample_ = 0;
 
       System::MoleculeIterator molIter;                                             // Loading cellList with atoms.
-      Molecule::AtomIterator atomIter;           
+      Molecule::AtomIterator atomIter;
       for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
           clusters_[molIter->id()].self_ = molIter.get();
           for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
@@ -157,40 +157,81 @@ namespace McMd
    /*
    * Clear accumulators.
    */
-   void ClustersStatistics::findClusters(Molecule* molPtr, int clusterId) 
-   { 
+   void ClustersStatistics::findClusters(Molecule* molPtr, int clusterId)
+   {
+      std::cout << "Entering findClusters, molecule " << molPtr->id() << std::endl;
       GArray<int> mNeighbors;
       mNeighbors.reserve(25);
-      
+
       CellList::NeighborArray aNeighbors;
 
       Molecule::AtomIterator atomIter;
-      for (molPtr->begin(atomIter); atomIter.notEnd(); ++atomIter) {                   // Identifying the neighbours! 
-         
-          if (atomIter->typeId() == coreId_) {                                         // Checks the atomType to make sure it has the right Type.
+      for (molPtr->begin(atomIter); atomIter.notEnd(); ++atomIter) {                   // Identifying the neighbours!
+
+         if (atomIter->typeId() == coreId_) {                                         // Checks the atomType to make sure it has the right Type.
             cellList_.getNeighbors(atomIter->position(), aNeighbors);                  // Takes neighbors of molecules atom out of cellList.
-               //std::cout<<aNeighbors.size()<<"\n";   
-          for (int i = 0; i < aNeighbors.size(); i++) {
-                   //std::cout<<clusters_[aNeighbors[i]->molecule().id()].clusterId_<<"\n";
-                if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ == -1) {
-                   //std::cout<<aNeighbors[i]->molecule().id()<<"\t"<<clusterId<<"\n";
-                   clusters_[aNeighbors[i]->molecule().id()].clusterId_ = clusterId; 
-                   //std::cout<<aNeighbors[i]->molecule().id()<<"\t"<<clusterId<<"\n";
-                   mNeighbors.append(aNeighbors[i]->molecule().id());               // Adds neighbor molecule to list of neighbors.
-                } else if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ != clusterId) UTIL_THROW("Cluster Clash!"); 
-          } 
-          }
+            //std::cout<<aNeighbors.size()<<"\n";
+            for (int i = 0; i < aNeighbors.size(); i++) {
+               //std::cout<<clusters_[aNeighbors[i]->molecule().id()].clusterId_<<"\n";
+               if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ == -1) {
+                  // std::cout<<aNeighbors[i]->molecule().id()<<"\t"<<clusterId<<"\n";
+                  clusters_[aNeighbors[i]->molecule().id()].clusterId_ = clusterId;
+                  // std::cout<<aNeighbors[i]->molecule().id()<<"\t" << clusterId << "\n";
+                  // Adds neighbor molecule to list of neighbors.
+                  mNeighbors.append(aNeighbors[i]->molecule().id());               
+               } else 
+               if (clusters_[aNeighbors[i]->molecule().id()].clusterId_ != clusterId) {
+                  UTIL_THROW("Cluster Clash!");
+               }
+            }
+         }
       }
-      
+      std::cout << "Finished loop over atoms" << std::endl;
+
+      int molId;
+      int nMolecule = system().nMolecule(speciesId_);
+      Molecule* mNeighborPtr;
       for (int i = 0; i < mNeighbors.size(); ++i) {
-          findClusters(clusters_[mNeighbors[i]].self_, clusterId);
+         molId = mNeighbors[i];
+         if (molId < 0 || molId >= nMolecule) {
+            UTIL_THROW("Invalid molecule id");
+         }
+         if (clusters_[molId].clusterId_ == -1) {
+            UTIL_THROW("Unmarked molecule");
+         }
+         mNeighborPtr = clusters_[molId].self_;
+         if (mNeighborPtr == 0) {
+            UTIL_THROW("Null neighbor ptr");
+         }
+         if (mNeighborPtr->id() != molId) {
+            UTIL_THROW("Inconsistent molecule Ids");
+         }
       }
-      
+      std::cout << "Finished extra neighbor validation loop" << std::endl;
+
+      for (int i = 0; i < mNeighbors.size(); ++i) {
+         molId = mNeighbors[i];
+         if (molId < 0 || molId >= nMolecule) {
+            UTIL_THROW("Invalid molecule id");
+         }
+         mNeighborPtr = clusters_[molId].self_;
+         if (mNeighborPtr == 0) {
+            UTIL_THROW("Null neighbor ptr");
+         }
+         if (mNeighborPtr->id() != molId) {
+            UTIL_THROW("Inconsistent molecule Ids");
+         }
+	 Molecule* memory = mNeighborPtr;
+	 int memid = memory->id();
+         findClusters(mNeighborPtr, clusterId);
+      }
+      std::cout << "Finished loop over neighbors" << std::endl;
+
       aNeighbors.clear();
       mNeighbors.deallocate();
    }
 
-   /** 
+   /**
    * Roots out all the Clusters.
    */
    int ClustersStatistics::clusterId(Molecule* molPtr)
@@ -198,38 +239,47 @@ namespace McMd
       return  clusters_[molPtr->id()].clusterId_;
    }
 
-   /* 
+   /*
    * Evaluate end-to-end vectors of all chains, add to ensemble.
    */
-   void ClustersStatistics::sample(long iStep) 
-   { 
+   void ClustersStatistics::sample(long iStep)
+   {
       if (isAtInterval(iStep)) {
-         
+
          int nMolecule = system().nMolecule(speciesId_);
          int clusterId = 0;
          cellList_.clear();
          clusterLengths_.clear();
          hist_.clear();
 
-         for (int i = 0; i < nMolecule; ++i) { 
-             clusters_[i].self_ = 0;
-             clusters_[i].clusterId_ = -1;
+         for (int i = 0; i < nMolecule; ++i) {
+            clusters_[i].self_ = 0;
+            clusters_[i].clusterId_ = -1;
          }
 
-         System::MoleculeIterator molIter;                                             // Loading cellList with atoms.  
-         Molecule::AtomIterator atomIter;           
+         System::MoleculeIterator molIter;                                             // Loading cellList with atoms.
+         Molecule::AtomIterator atomIter;
+         int molCounter = 0;
          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
-             clusters_[molIter->id()].self_ = molIter.get();
-             for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
-                 //std::cout<<atomIter->typeId()<<"\n";
-                 if (atomIter->typeId() == coreId_) {
-                    //std::cout<<"\n";
-                    system().boundary().shift(atomIter->position());
-                    cellList_.addAtom(*atomIter);
-                 }
-             }              // Atom loop.
-         }                  // Molecule loop.
-         
+            if (molIter->id() >= nMolecule || molIter->id() < 0) {
+               UTIL_THROW("Molecule id out of range");
+            }
+            if (clusters_[molIter->id()].self_ != 0) {
+               UTIL_THROW("Molecule pointer already set");
+            }
+            clusters_[molIter->id()].self_ = molIter.get();
+            for (molIter->begin(atomIter); atomIter.notEnd(); ++atomIter) {
+               //std::cout<<atomIter->typeId()<<"\n";
+               if (atomIter->typeId() == coreId_) {
+                  //std::cout<<"\n";
+                  system().boundary().shift(atomIter->position());
+                  cellList_.addAtom(*atomIter);
+               }
+            }              // Atom loop.
+            ++molCounter;
+         }   // Molecule loop.
+         UTIL_ASSERT(molCounter == nMolecule);
+
          for (system().begin(speciesId_, molIter); molIter.notEnd(); ++molIter) {
               //std::cout<<clusters_[molIter->id()].clusterId_<<"\n";
               if (clusters_[molIter->id()].clusterId_ == -1) {
@@ -237,7 +287,7 @@ namespace McMd
                  clusterId++;
               }
          }
-          
+
          clusterLengths_.resize(clusterId);
          for (int i = 0; i < clusterId; ++i) {
              clusterLengths_[i] = 0;
@@ -299,7 +349,7 @@ namespace McMd
    /*
    * Output results to file after simulation is completed.
    */
-   void ClustersStatistics::output() 
+   void ClustersStatistics::output()
    {
       fileMaster().openOutputFile(outputFileName(".prm"), outputFile_);
       writeParam(outputFile_);
@@ -307,4 +357,4 @@ namespace McMd
    }
 
 }
-#endif 
+#endif

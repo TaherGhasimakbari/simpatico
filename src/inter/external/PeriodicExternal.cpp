@@ -50,10 +50,6 @@ namespace Inter
           waveIntVectors_[i][j] = other.waveIntVectors_[i][j];
         }
       }
-      amplitudes_.allocate(nWaveVectors_);
-      for (int i=0; i < nWaveVectors_; ++i) {
-        amplitudes_[i] = other.amplitudes_[i];
-      }
       phases_.allocate(nWaveVectors_);
       for (int i=0; i < nWaveVectors_; ++i) {
         phases_[i] = other.phases_[i];
@@ -83,10 +79,6 @@ namespace Inter
         for (int i=0; i < nWaveVectors_; ++i) {
           waveIntVectors_[i][j] = other.waveIntVectors_[i][j];
         }
-      }
-      amplitudes_.allocate(nWaveVectors_);
-      for (int i=0; i < nWaveVectors_; ++i) {
-        amplitudes_[i] = other.amplitudes_[i];
       }
       phases_.allocate(nWaveVectors_);
       for (int i=0; i < nWaveVectors_; ++i) {
@@ -145,8 +137,6 @@ namespace Inter
       read<double>(in, "C", C_);
       waveIntVectors_.allocate(nWaveVectors_);
       readDArray<IntVector>(in, "waveIntVectors", waveIntVectors_, nWaveVectors_);
-      amplitudes_.allocate(nWaveVectors_);
-      readDArray<double>(in, "amplitudes", amplitudes_, nWaveVectors_);
       phases_.allocate(nWaveVectors_);
       readDArray<double>(in, "phases", phases_, nWaveVectors_);
       read<Vector>(in, "shift", shift_);
@@ -169,8 +159,6 @@ namespace Inter
       loadParameter<double>(ar, "C", C_);
       waveIntVectors_.allocate(nWaveVectors_);
       loadDArray<IntVector>(ar, "waveIntVectors", waveIntVectors_, nWaveVectors_);
-      amplitudes_.allocate(nWaveVectors_);
-      loadDArray<double>(ar, "amplitudes", amplitudes_, nWaveVectors_);
       phases_.allocate(nWaveVectors_);
       loadDArray<double>(ar, "phases", phases_, nWaveVectors_);
       loadParameter<Vector>(ar, "shift", shift_);
@@ -189,7 +177,6 @@ namespace Inter
       ar << nWaveVectors_;
       ar << C_;
       ar << waveIntVectors_;
-      ar << amplitudes_;
       ar << phases_;
       ar << shift_;
       ar << interfaceWidth_;
