@@ -110,7 +110,12 @@ namespace DdMd
       ar << phases_;
       ar << grid_;
       ar << nSample_;
-      ar << accumulator_;
+      ar << accumulatorUmax_;
+      ar << accumulatorNmax_;
+      ar << accumulatorUavg_;
+      ar << accumulatorNavg_;
+      ar << accumulatorUamp_;
+      ar << accumulatorNamp_;
    }
   
    /*
@@ -122,7 +127,12 @@ namespace DdMd
          UTIL_THROW("Error: object is not initialized");
       }
       assert (nWave_ > 0);
-      accumulator_.clear();
+      accumulatorUmax_.clear();
+      accumulatorNmax_.clear();
+      accumulatorUavg_.clear();
+      accumulatorNavg_.clear();
+      accumulatorUamp_.clear();
+      accumulatorNamp_.clear();
 
       nSample_ = 0;
    }
@@ -190,103 +200,189 @@ namespace DdMd
       }
       #endif
 
-      Vector spacing;
-      for (int i = 0; i < 3; ++i) {
-         spacing[i] = 1.0/grid_[i];
-      }
-      
       Boundary* boundaryPtr = &simulation().boundary();
+      if(simulation().domain().isMaster()) {
 
-      std::complex<double> CV[grid_[0]][grid_[1]][grid_[2]];
-      double maxCV = 0.0;
-      double absCV = 0.0; 
-      double abs = 0.0;
+         std::complex<double> CV;
+         double CVmax = 0.0;
+         double CVavg = 0.0;
+         double CVreal = 0.0; 
+         double abs = 0.0;
+         double abs2 = 0.0;
+         double ampAvg = 0.0;
+         double amp2Avg = 0.0;
+         double ampStd = 0.0;
 
-      int maxi = 0;
-      int maxj = 0;
-      int maxk = 0;
+         int imax = 0;
+         int jmax = 0;
+         int kmax = 0;
 
-      Vector R;
-      R.zero();
-      Vector dR0;
-      Vector dR1;
-      Vector dR2;
+         Vector R;
+         R.zero();
+         Vector dR0;
+         Vector dR1;
+         Vector dR2;
 
-      for (int w = 0; w < nWave_; ++w) {
-         abs += std::norm(totalFourier_[w]);
-      }
-      abs = std::sqrt(abs);
+         for (int w = 0; w < nWave_; ++w) {
+            abs += std::abs(totalFourier_[w]);
+            abs2 += std::norm(totalFourier_[w]);
+         }
+         ampAvg = abs/nWave_;
+         amp2Avg = abs2/nWave_;
+         ampStd = std::sqrt(amp2Avg-ampAvg*ampAvg);
+         ampStd /= ampAvg;
 
-      for (int i = 0; i < grid_[0]; ++i) {
-         dR0 = boundaryPtr->bravaisBasisVector(0);
-         dR0 *= i*spacing[0];
-         for (int j = 0; j < grid_[1]; ++j) {
-            dR1 = boundaryPtr->bravaisBasisVector(1);
-            dR1 *= j*spacing[1];
-            for (int k = 0; k < grid_[2]; ++k) {
-               dR2 = boundaryPtr->bravaisBasisVector(2);
-               dR2 *= k*spacing[2];
+         for (int i = 0; i < grid_[0]; ++i) {
+            dR0 = boundaryPtr->bravaisBasisVector(0);
+            dR0 *= i;
+            dR0 /= grid_[0];
+            for (int j = 0; j < grid_[1]; ++j) {
+               dR1 = boundaryPtr->bravaisBasisVector(1);
+               dR1 *= j;
+               dR1 /= grid_[1];
+               for (int k = 0; k < grid_[2]; ++k) {
+                  dR2 = boundaryPtr->bravaisBasisVector(2);
+                  dR2 *= k;
+                  dR2 /= grid_[2];
 
-               R.zero();
-               R += dR0;
-               R += dR1;
-               R += dR2;
-               CV[i][j][k] = 0.0;
+                  R.zero();
+                  R += dR0;
+                  R += dR1;
+                  R += dR2;
+                  CV = 0.0;
 
-               for (int w = 0; w < nWave_; ++w) {
-                  CV[i][j][k] += exp(-Constants::Im*phases_[w])*exp(-Constants::Im*R.dot(waveVectors_[w]))*totalFourier_[w];
-               }
+                  for (int w = 0; w < nWave_; ++w) {
+                     CV += exp(-Constants::Im*phases_[w])*exp(-Constants::Im*R.dot(waveVectors_[w]))*totalFourier_[w];
+                  }
+                  CVavg = CVavg + std::real(CV);
 
-               absCV = std::abs(CV[i][j][k])/abs;
-               if (maxCV < absCV) {
-                  maxi = i;
-                  maxj = j;
-                  maxk = k;
-                  maxCV = absCV;
+                  CVreal = std::real(CV);
+                  if (CVmax < CVreal) {
+                     imax = i;
+                     jmax = j;
+                     kmax = k;
+                     CVmax = CVreal;
+                  }
                }
             }
          }
-      }
+         CVavg /= grid_[0]*grid_[1]*grid_[2];
 
-      #if 0
-      R.zero();
-      double b0 = (std::norm(CollectiveVariable[(maxi-1)%grid_[0]][maxj][maxk])-std::norm(CollectiveVariable[(maxi-2)%grid_[0]][maxj][maxk]))/spacing[0];
-      double a0 = std::norm(CollectiveVariable[(maxi-1)%grid_[0]][maxj][maxk])-b0*spacing[0]*(maxi-1);
-      double d0 = (std::norm(CollectiveVariable[(maxi+1)%grid_[0]][maxj][maxk])-std::norm(CollectiveVariable[(maxi+0)%grid_[0]][maxj][maxk]))/spacing[0];
-      double c0 = std::norm(CollectiveVariable[(maxi+1)%grid_[0]][maxj][maxk])-d0*spacing[0]*(maxi+1);
-      dR0.zero();
-      dR0 = boundaryPtr->bravaisBasisVector(0);
-      dR0 *= (-(a0-c0)/(b0-d0))*spacing[0];
+         Vector Rmax;
+         Rmax.zero();
+         dR0 = boundaryPtr->bravaisBasisVector(0);
+         dR0 *= imax;
+         dR0 /= grid_[0];
+         Rmax += dR0;
+         dR1 = boundaryPtr->bravaisBasisVector(1);
+         dR1 *= jmax;
+         dR1 /= grid_[1];
+         Rmax += dR1;
+         dR2 = boundaryPtr->bravaisBasisVector(2);
+         dR2 *= kmax;
+         dR2 /= grid_[2];
+         Rmax += dR2;
+         
 
-      double b1 = (std::norm(CollectiveVariable[maxi][(maxj-1)%grid_[1]][maxk])-std::norm(CollectiveVariable[maxi][(maxj-2)%grid_[1]][maxk]))/spacing[1];
-      double a1 = std::norm(CollectiveVariable[maxi][(maxj-1)%grid_[1]][maxk])-b1*spacing[1]*(maxj-1);
-      double d1 = (std::norm(CollectiveVariable[maxi][(maxj+1)%grid_[1]][maxk])-std::norm(CollectiveVariable[maxi][(maxj+0)%grid_[1]][maxk]))/spacing[1];
-      double c1 = std::norm(CollectiveVariable[maxi][(maxj+1)%grid_[1]][maxk])-d1*spacing[1]*(maxj+1);
-      dR1.zero();
-      dR1 = boundaryPtr->bravaisBasisVector(1);
-      dR1 *= (-(a1-c1)/(b1-d1))*spacing[1];
+         for (int i = -grid_[0]; i < grid_[0]; ++i) {
+            dR0 = boundaryPtr->bravaisBasisVector(0);
+            dR0 *= i;
+            dR0 /= grid_[0]*grid_[0];
+            for (int j = -grid_[1]; j < grid_[1]; ++j) {
+               dR1 = boundaryPtr->bravaisBasisVector(1);
+               dR1 *= j;
+               dR1 /= grid_[1]*grid_[1];
+               for (int k = -grid_[2]; k < grid_[2]; ++k) {
+                  dR2 = boundaryPtr->bravaisBasisVector(2);
+                  dR2 *= k;
+                  dR2 /= grid_[2]*grid_[2];
 
-      double b2 = (std::norm(CollectiveVariable[maxi][maxj][(maxk-1)%grid_[2]])-std::norm(CollectiveVariable[maxi][maxj][(maxk-2)%grid_[2]]))/spacing[2];
-      double a2 = std::norm(CollectiveVariable[maxi][maxj][(maxk-1)%grid_[2]])-b2*spacing[2]*(maxk-1);
-      double d2 = (std::norm(CollectiveVariable[maxi][maxj][(maxk+1)%grid_[2]])-std::norm(CollectiveVariable[maxi][maxj][(maxk+0)%grid_[2]]))/spacing[2];
-      double c2 = std::norm(CollectiveVariable[maxi][maxj][(maxk+1)%grid_[2]])-d2*spacing[2]*(maxk+1);
-      dR2.zero();
-      dR2 = boundaryPtr->bravaisBasisVector(0);
-      dR2 *= (-(a2-c2)/(b2-d2))*spacing[0];
-      R += dR0;
-      R += dR1;
-      R += dR2;
-      std::complex<double> maxCV;
-      for (int w = 0; w < nWave_; ++w) { 
-         maxCV += exp(-phases_[w]*Constants::Im)*exp(-R.dot(waveVectors_[w])*Constants::Im)*totalFourier_[w];
-      }
-      #endif
+                  R.zero();
+                  R += dR0;
+                  R += dR1;
+                  R += dR2;
+                  R += Rmax;
+                  CV = 0.0;
 
-      if(simulation().domain().isMaster()) {
-         accumulator_.sample(maxCV);
+                  for (int w = 0; w < nWave_; ++w) {
+                     CV += exp(-Constants::Im*phases_[w])*exp(-Constants::Im*R.dot(waveVectors_[w]))*totalFourier_[w];
+                  }
+
+                  CVreal = std::real(CV);
+                  if (CVmax < CVreal) {
+                     imax = i;
+                     jmax = j;
+                     kmax = k;
+                     CVmax = CVreal;
+                  }
+               }
+            }
+         }
+
+         dR0 = boundaryPtr->bravaisBasisVector(0);
+         dR0 *= imax;
+         dR0 /= grid_[0]*grid_[0];
+         Rmax += dR0;
+         dR1 = boundaryPtr->bravaisBasisVector(1);
+         dR1 *= jmax;
+         dR1 /= grid_[1]*grid_[1];
+         Rmax += dR1;
+         dR2 = boundaryPtr->bravaisBasisVector(2);
+         dR2 *= kmax;
+         dR2 /= grid_[2]*grid_[2];
+         Rmax += dR2;
+         
+         for (int i = -grid_[0]; i < grid_[0]; ++i) {
+            dR0 = boundaryPtr->bravaisBasisVector(0);
+            dR0 *= i;
+            dR0 /= grid_[0]*grid_[0]*grid_[0];
+            for (int j = -grid_[1]; j < grid_[1]; ++j) {
+               dR1 = boundaryPtr->bravaisBasisVector(1);
+               dR1 *= j;
+               dR1 /= grid_[1]*grid_[1]*grid_[1];
+               for (int k = -grid_[2]; k < grid_[2]; ++k) {
+                  dR2 = boundaryPtr->bravaisBasisVector(2);
+                  dR2 *= k;
+                  dR2 /= grid_[2]*grid_[2]*grid_[2];
+
+                  R.zero();
+                  R += dR0;
+                  R += dR1;
+                  R += dR2;
+                  R += Rmax;
+                  CV = 0.0;
+
+                  for (int w = 0; w < nWave_; ++w) {
+                     CV += exp(-Constants::Im*phases_[w])*exp(-Constants::Im*R.dot(waveVectors_[w]))*totalFourier_[w];
+                  }
+
+                  CVreal = std::real(CV);
+                  if (CVmax < CVreal) {
+                     imax = i;
+                     jmax = j;
+                     kmax = k;
+                     CVmax = CVreal;
+                  }
+               }
+            }
+         }
+
+         accumulatorUmax_.sample(CVmax);
+         accumulatorNmax_.sample(CVmax/abs);
+         accumulatorUavg_.sample(CVavg);
+         accumulatorNavg_.sample(CVavg/abs);
+         accumulatorUamp_.sample(CVmax/ampStd);
+         accumulatorNamp_.sample(CVmax/abs/ampStd);
          outputFile_ << Int(iStep, 10)
-                     << Dbl(maxCV, 20)
-                     << std::endl;
+            << Dbl(CVmax, 20)
+            << Dbl(CVmax/abs, 20)
+            << Dbl(CVavg, 20)
+            << Dbl(CVavg/abs, 20)
+            << Dbl(CVmax/ampStd, 20)
+            << Dbl(CVmax/abs/ampStd, 20)
+            << Dbl(ampStd, 20)
+            << Dbl(abs, 20)
+            << std::endl;
          outputFile_.close();
       }
 
@@ -328,11 +424,40 @@ namespace DdMd
          outputFile_.close();
 
          // Write parameters to a *_avg.dat file
-         simulation().fileMaster().openOutputFile(outputFileName("_avg.dat"), 
+         simulation().fileMaster().openOutputFile(outputFileName("_Umax.dat"), 
                                                   outputFile_);
-         accumulator_.output(outputFile_);
+         accumulatorUmax_.output(outputFile_);
          outputFile_.close();
 
+         // Write parameters to a *_avg.dat file
+         simulation().fileMaster().openOutputFile(outputFileName("_Nmax.dat"), 
+                                                  outputFile_);
+         accumulatorNmax_.output(outputFile_);
+         outputFile_.close();
+
+         // Write parameters to a *_avg.dat file
+         simulation().fileMaster().openOutputFile(outputFileName("_Uavg.dat"), 
+                                                  outputFile_);
+         accumulatorUavg_.output(outputFile_);
+         outputFile_.close();
+
+         // Write parameters to a *_avg.dat file
+         simulation().fileMaster().openOutputFile(outputFileName("_Navg.dat"), 
+                                                  outputFile_);
+         accumulatorNavg_.output(outputFile_);
+         outputFile_.close();
+
+         // Write parameters to a *_avg.dat file
+         simulation().fileMaster().openOutputFile(outputFileName("_Uamp.dat"), 
+                                                  outputFile_);
+         accumulatorUamp_.output(outputFile_);
+         outputFile_.close();
+
+         // Write parameters to a *_avg.dat file
+         simulation().fileMaster().openOutputFile(outputFileName("_Namp.dat"), 
+                                                  outputFile_);
+         accumulatorNamp_.output(outputFile_);
+         outputFile_.close();
       }
    }
 

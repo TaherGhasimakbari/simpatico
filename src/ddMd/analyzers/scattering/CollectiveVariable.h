@@ -196,7 +196,22 @@ namespace DdMd
       int  nWave_;
 
       /// Number of wavevectors.
-      Average  accumulator_;
+      Average  accumulatorUmax_;
+
+      /// Number of wavevectors.
+      Average  accumulatorNmax_;
+
+      /// Number of wavevectors.
+      Average  accumulatorUavg_;
+
+      /// Number of wavevectors.
+      Average  accumulatorNavg_;
+
+      /// Number of wavevectors.
+      Average  accumulatorUamp_;
+
+      /// Number of wavevectors.
+      Average  accumulatorNamp_;
 
       /// Number of samples thus far.
       int  nSample_;
