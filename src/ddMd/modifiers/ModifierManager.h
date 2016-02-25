@@ -164,6 +164,10 @@ namespace DdMd
       */
       void unpackReverseUpdate(long iStep);
 
+      /**
+      * This gives the modifiers an output option.
+      */
+      void output(long iStep);
       //@} 
       
    private:
@@ -187,6 +191,7 @@ namespace DdMd
       GPArray<Modifier> exchangeModifiers_;
       GPArray<Modifier> updateModifiers_;
       GPArray<Modifier> reverseUpdateModifiers_;
+      GPArray<Modifier> output_;
 
    };
 

@@ -1,7 +1,8 @@
 ddMd_modifiers_=\
-     ddMd/modifiers/Modifier.cpp \
-     ddMd/modifiers/ModifierManager.cpp \
-     ddMd/modifiers/ModifierFactory.cpp
+     ddMd/modifiers/Modifier.cpp\
+     ddMd/modifiers/ModifierManager.cpp\
+     ddMd/modifiers/ModifierFactory.cpp\
+     ddMd/modifiers/StrainModulator.cpp
 
 ddMd_modifiers_SRCS=\
      $(addprefix $(SRC_DIR)/, $(ddMd_modifiers_))

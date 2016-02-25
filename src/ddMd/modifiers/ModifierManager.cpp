@@ -33,7 +33,8 @@ namespace DdMd
       endOfStepModifiers_(),
       exchangeModifiers_(),
       updateModifiers_(),
-      reverseUpdateModifiers_()
+      reverseUpdateModifiers_(),
+      output_()
    { setClassName("ModifierManager"); }
 
    /*
@@ -56,7 +57,8 @@ namespace DdMd
       endOfStepModifiers_(),
       exchangeModifiers_(),
       updateModifiers_(),
-      reverseUpdateModifiers_()
+      reverseUpdateModifiers_(),
+      output_()
    {  setClassName("ModifierManager"); }
 
    /*
@@ -121,6 +123,9 @@ namespace DdMd
          }
          if (ptr->isSet(Modifier::Flags::ReverseUpdate)) { 
             reverseUpdateModifiers_.append(*ptr); 
+         }
+         if (ptr->isSet(Modifier::Flags::Output)) { 
+            output_.append(*ptr); 
          }
       } // end for i 
    }
@@ -328,6 +333,16 @@ namespace DdMd
       for (int i = 0; i < n; ++i) {
          ptr = &reverseUpdateModifiers_[i];
          ptr->unpackReverseUpdate();
+      }
+   }
+
+   void ModifierManager::output(long iStep)
+   {
+      Modifier* ptr;
+      int n = output_.size();
+      for (int i = 0; i < n; ++i) {
+         ptr = &output_[i];
+         ptr->output();
       }
    }
 
