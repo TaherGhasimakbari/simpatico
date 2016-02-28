@@ -222,6 +222,13 @@ namespace DdMd
       */
       virtual void unpackReverseUpdate() {};
 
+      /**
+      * Unpack data from the buffer used to reverse update forces.
+      *
+      * Will only be used if reverse communication is enabled.
+      */
+      virtual void output() {};
+
       //@} 
       /// \name Bit Flags 
       //@{
@@ -290,6 +297,9 @@ namespace DdMd
 
          /// Flag to activate pack/unpack reverse update functions.
          static const Bit ReverseUpdate;
+
+         /// Flag to activate pack/unpack reverse update functions.
+         static const Bit Output;
       };
 
       /**

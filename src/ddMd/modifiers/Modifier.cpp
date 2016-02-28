@@ -27,6 +27,7 @@ namespace DdMd
    const Bit Modifier::Flags::Exchange = 12;
    const Bit Modifier::Flags::Update = 13;
    const Bit Modifier::Flags::ReverseUpdate = 14;
+   const Bit Modifier::Flags::Output = 15;
 
    /*
    * This static method exists to guarantee initialization of static 

@@ -10,6 +10,7 @@
 
 #include <ddMd/modifiers/Modifier.h>        // base class
 #include <util/misc/FileMaster.h>           // member variable
+#include <util/containers/DArray.h>         // member variable
 #include <ddMd/simulation/Simulation.h>
 
 namespace DdMd
@@ -80,6 +81,13 @@ namespace DdMd
       */
       virtual void preIntegrate1(long iStep);
 
+      /** 
+      * Call just before the first step of velocity-Verlet algorithm. 
+      *
+      * Atom positions are Cartesian on entry and return.
+      */
+      virtual void output();
+
       protected:
 
       /**
@@ -96,7 +104,22 @@ namespace DdMd
       std::string outputFileName_;
 
       /// Stress Measurement Interval
-      int  measurementInterval_;
+      double  mFactor_;
+
+      /// Stress Measurement Interval
+      double  factor_;
+
+      /// Stress Measurement Interval
+      int  mInterval_;
+
+      /// Stress Measurement Interval
+      bool  arrayFlag_;
+
+      /// Stress Measurement Interval
+      Util::DArray<double>  array1_;
+
+      /// Stress Measurement Interval
+      Util::DArray<double>  array2_;
 
       /// Has readParam been called?
       long  isInitialized_;

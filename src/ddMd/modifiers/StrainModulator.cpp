@@ -39,7 +39,12 @@ namespace DdMd
       // Read interval value (inherited from Interval)
       readInterval(in);
       read<std::string>(in, "outputFileName", outputFileName_);
-      read<int>(in,"measurementInterval", measurementInterval_);
+      read<double>(in,"mFactor", mFactor_);
+      factor_ = mFactor_;
+      read<int>(in,"mInterval", mInterval_);
+      arrayFlag_ = true;
+      array1_.allocate(static_cast<int>(mInterval_/interval()));
+      array2_.allocate(static_cast<int>(mInterval_/interval()));
 
       isInitialized_ = true;
    }
@@ -50,7 +55,8 @@ namespace DdMd
    void StrainModulator::loadParameters(Serializable::IArchive &ar)
    {
       loadParameter<std::string>(ar, "outputFileName", outputFileName_);
-      loadParameter(ar,"measurementInterval", measurementInterval_);
+      loadParameter(ar,"mFactor", mFactor_);
+      loadParameter(ar,"mInterval", mInterval_);
 
       isInitialized_ = true;
    }
@@ -88,29 +94,58 @@ namespace DdMd
    */
    void StrainModulator::preIntegrate1(long iStep)
    {
-      if (isAtInterval(iStep))  {
-         Simulation& sim = simulation();
-         sim.computeVirialStress();
-         sim.computeKineticStress();
+      if (isAtInterval(iStep)) {
+         simulation().computeVirialStress();
+         simulation().computeKineticStress();
+         
+         factor_ = 1.0/factor_;
+         if (iStep % mInterval_ == 0) {
+            simulation().boundary().setTetragonal(factor_,std::sqrt(1.0/factor_));
+            arrayFlag_ = ~arrayFlag_;
+         }
+            
+         if (simulation().domain().isMaster()) {
 
-         if (sim.domain().isMaster()) {
-
-            Tensor virial  = sim.virialStress();
-            Tensor kinetic = sim.kineticStress();
+            Tensor virial  = simulation().virialStress();
+            Tensor kinetic = simulation().kineticStress();
             Tensor total = total.add(virial, kinetic);
 
-            double factor = sqrt(sim.boundary().volume()/10.0);
+            double factor = sqrt(simulation().boundary().volume()/10.0);
             for (int i = 0; i < Dimension; ++i) {
                for (int j = 0; j < Dimension; ++j) {
                   total(i,j) *= factor;
                }
             }
+            
+            if (arrayFlag_) {
+               array1_[iStep % mInterval_] = array1_[iStep % mInterval_] + (total(1,1)+total(2,2))/2.0-total(0,0);
+            } else {
+               array2_[iStep % mInterval_] = array1_[iStep % mInterval_] + (total(1,1)+total(2,2))/2.0-total(0,0);
+            }     
 
             simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
             outputFile_ << Int(iStep, 10) << std::endl;
             outputFile_.close();
          }
       }
+   }
+
+   /*
+   * Output results.
+   */
+   void StrainModulator::output()
+   {
+      simulation().fileMaster().openOutputFile(outputFileName("_1.dat"), outputFile_);
+      for (int i = 0; i < array1_.capacity(); i++) {
+         outputFile_ << Int(i, 10) << array1_[i] << std::endl;
+      }
+      outputFile_.close();
+
+      simulation().fileMaster().openOutputFile(outputFileName("_2.dat"), outputFile_);
+      for (int i = 0; i < array2_.capacity(); i++) {
+         outputFile_ << Int(i, 10) << array2_[i] << std::endl;
+      }
+      outputFile_.close();
    }
 
 }
