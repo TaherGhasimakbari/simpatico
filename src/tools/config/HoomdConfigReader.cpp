@@ -167,6 +167,9 @@ namespace Tools
             if (name == "velocity") {
                readVelocity(start, file);
             } else 
+            if (name == "accelaration") {
+               readAtomIgnore(start, file);
+            } else 
             if (name == "type") {
                readType(start, file);
             } else 
@@ -182,6 +185,9 @@ namespace Tools
             if (name == "body") {
                readAtomIgnore(start, file);
             } else 
+            if (name == "image") {
+               readAtomIgnore(start, file);
+            } else 
             if (name == "bond") {
                readGroups<2>(start, file, configuration().bonds(), 
                              bondTypeMap_);
@@ -190,7 +196,7 @@ namespace Tools
             else if (name == "angle") {
                readGroups<3>(start, file, configuration().angles(), 
                              angleTypeMap_);
-            } 
+            }
             #endif
             #ifdef INTER_DIHEDRAL
             else if (name == "dihedral") {
@@ -201,7 +207,10 @@ namespace Tools
                              improperTypeMap_);
             } 
             #endif
-            else {
+            else if (name == "orientation") {
+               readAtomIgnore(start, file);
+            } else {
+               std::cout<<"\n Error: "<<name<<"\n";
                std::string msg = "Unknown node name ";
                msg += name;
                UTIL_THROW(msg.c_str());

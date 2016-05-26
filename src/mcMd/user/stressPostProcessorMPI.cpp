@@ -17,9 +17,9 @@
 #include <util/format/Int.h>
 #include <util/format/Dbl.h>
 
-#define START      2000000
-#define END        17000000
-#define BOXLENGTH  22.04
+#define START      0
+#define END        12000000
+#define BOXLENGTH  100
 
 using namespace std;
 using namespace Util;
@@ -51,12 +51,13 @@ int main()
    Tensor total;
    double pressure;
    
-   std::string path ("/home/morsedc/tghasi/Simulation/Stress/StressRelaxation/S1_32/1.95_1.95_r5/out/");
+   std::string path ("/home/morsedc/tghasi/Simulation/Stress/StressRelaxation/S1_32_527/Box100.00/Alpha4.50");
    std::string path_in;
    std::string path_out;
-
-   path_in=path+toString(rank)+"/stress"+toString(rank);
-   path_out=path+toString(rank)+"/stress.dat";
+   //path_in=path+toString(rank)+"/stress"+toString(rank);
+   //path_out=path+toString(rank)+"/stress.dat";
+   path_in=path+"/CC";
+   path_out=path+"/CC.dat";
    inFile.open(path_in.c_str(), ios_base::in);
    //path_in=path+"/stress"+toString(rank);
    //path_out=path+"/stress.dat"+toString(rank);
@@ -95,7 +96,7 @@ int main()
       inFile >> pyz;
             
       if (i == START) {
-         cout<<rank<<": sampling starts!\n";
+         cout<<setw(3)<<rank<<": sampling starts!\n";
       }
       
       if (i>START) {
