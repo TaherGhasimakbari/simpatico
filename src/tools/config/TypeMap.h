@@ -83,7 +83,9 @@ namespace Tools
    {
       std::map<std::string, int>::const_iterator iter = ids_.find(name);
       if (iter == ids_.end()) {
-         UTIL_THROW("Type name not found");
+         std::string msg = "Type name not found : ";
+         msg += name;
+         UTIL_THROW(msg.c_str());
       }
       return iter->second;   
    }
