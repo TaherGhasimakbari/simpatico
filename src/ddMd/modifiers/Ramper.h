@@ -85,13 +85,6 @@ namespace DdMd
       */
       virtual void preIntegrate1(long iStep);
 
-      /** 
-      * Call just before the first step of velocity-Verlet algorithm. 
-      *
-      * Atom positions are Cartesian on entry and return.
-      */
-      virtual void output();
-
       protected:
 
       /**

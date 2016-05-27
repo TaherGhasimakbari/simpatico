@@ -8,7 +8,8 @@
 #include "ModifierFactory.h" // Class header
 
 // Modifiers 
-// #include "Modifier1.h"
+#include "StrainModulator.h"
+#include "Ramper.h"
 
 namespace DdMd
 {
@@ -40,12 +41,13 @@ namespace DdMd
       ptr = trySubfactories(className);
       if (ptr) return ptr;
 
-      #if 0
       // Simulation Modifiers
-      if (className == "Modifier1") {
-         ptr = new Modifier1(simulation());
+      if (className == "StrainModulator") {
+         ptr = new StrainModulator(simulation());
+      } else 
+      if (className == "Ramper") {
+         ptr = new Ramper(simulation());
       } // else 
-      #endif
 
       return ptr;
    }
