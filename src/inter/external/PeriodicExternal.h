@@ -9,8 +9,9 @@
 */
 
 #include <util/boundary/Boundary.h>
+#include <ddMd/simulation/Simulation.h>
 #include <util/space/Dimension.h>
-#include <util/space/Vector.h>
+#include <util/space/IntVector.h>
 #include <util/param/ParamComposite.h>
 #include <util/global.h>
 #include <cmath>
@@ -142,7 +143,7 @@ namespace Inter
    private:
    
       /// Maximum allowed value for nAtomType (# of particle types).
-      static const int MaxAtomType = 3;
+      static const int MaxAtomType = 4;
 
       /// Prefactor array ofsize nAtomType.
       DArray<double> prefactor_;
@@ -154,7 +155,10 @@ namespace Inter
       int  nWaveVectors_;
 
       /// Array of Miller index IntVectors for the reciprocal lattice vectors.
-      DArray<Vector>  waveVectors_;
+      DArray<IntVector>  waveIntVectors_;
+
+      /// Phases for the different plane waves.
+      DArray<double> amplitudes_;
 
       /// Phases for the different plane waves.
       DArray<double> phases_;
@@ -191,17 +195,16 @@ namespace Inter
    {
       const Vector cellLengths = boundaryPtr_->lengths();
       double clipParameter = 1.0/(2.0*M_PI*periodicity_*interfaceWidth_);
-      
       Vector r = position;
       r -= shift_;
       double cosine = 0.0;
       for (int i = 0; i < nWaveVectors_; ++i) {
          Vector q;
-         q[0] = 2.0*M_PI*periodicity_*waveVectors_[i][0]/cellLengths[0];
-         q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
-         q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
+         q[0] = 2.0*M_PI*periodicity_*waveIntVectors_[i][0]/cellLengths[0];
+         q[1] = 2.0*M_PI*periodicity_*waveIntVectors_[i][1]/cellLengths[1]; 
+         q[2] = 2.0*M_PI*periodicity_*waveIntVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
-         cosine += cos(arg);
+         cosine += amplitudes_[i]*cos(arg);
       }
       cosine *= clipParameter;
       return prefactor_[type]*externalParameter_*tanh(C_+cosine);
@@ -224,12 +227,12 @@ namespace Inter
       deriv.zero();
       for (int i = 0; i < nWaveVectors_; ++i) {
          Vector q;
-         q[0] = 2.0*M_PI*periodicity_*waveVectors_[i][0]/cellLengths[0];
-         q[1] = 2.0*M_PI*periodicity_*waveVectors_[i][1]/cellLengths[1]; 
-         q[2] = 2.0*M_PI*periodicity_*waveVectors_[i][2]/cellLengths[2];
+         q[0] = 2.0*M_PI*periodicity_*waveIntVectors_[i][0]/cellLengths[0];
+         q[1] = 2.0*M_PI*periodicity_*waveIntVectors_[i][1]/cellLengths[1]; 
+         q[2] = 2.0*M_PI*periodicity_*waveIntVectors_[i][2]/cellLengths[2];
          double arg = q.dot(r)+phases_[i];
-         cosine += cos(arg);
-         double sine = -1.0*sin(arg);
+         cosine += amplitudes_[i]*cos(arg);
+         double sine = -1.0*amplitudes_[i]*sin(arg);
          q *= sine;
          deriv += q;
       }

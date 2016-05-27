@@ -16,6 +16,8 @@
 #include "StructureFactorPGrid.h"
 #include "StructureFactor.h"
 #include "StructureFactorGrid.h"
+#include "IntraStructureFactor.h"
+#include "IntraStructureFactorGrid.h"
 #include "CompositionProfile.h"
 #include "VanHove.h"
 #include "BoundaryAverage.h"
@@ -24,8 +26,9 @@
 #include "RadiusGyration.h"
 #include "BlockRadiusGyration.h"
 #include "BondLengthDist.h"
-#include "IntraStructureFactor.h"
-#include "IntraStructureFactorGrid.h"
+#include "CompositionProfile.h"
+#include "ClustersStatistics.h"
+#include "AtomMSD.h"
 #include "ComMSD.h"
 #include "IntraPairAutoCorr.h"
 #include "RingRouseAutoCorr.h"
@@ -89,7 +92,7 @@ namespace McMd
       } else 
       if (className == "AtomMSD") {
          ptr = new AtomMSD(system());
-      }
+      } else
       if (className == "VanHove") {
          ptr = new VanHove(system());
       }
@@ -111,6 +114,15 @@ namespace McMd
       if (className == "BondLengthDist") {
          ptr = new BondLengthDist(system());
       } else 
+      if (className == "CompositionProfile") {
+         ptr = new CompositionProfile(system());
+      } else 
+      if (className == "ClustersStatistics") {
+         ptr = new ClustersStatistics(system());
+      } else 
+      if (className == "AtomMSD") {
+         ptr = new AtomMSD(system());
+      } else
       if (className == "ComMSD") {
          ptr = new ComMSD(system());
       } else

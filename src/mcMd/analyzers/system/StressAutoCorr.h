@@ -128,6 +128,10 @@ namespace McMd
 
       /// Has readParam been called?
       long  isInitialized_;
+      
+      /// Keeps track of number of samples in the average block! 
+      int counter_;
+      DArray<double> elements_;
 
    };
 
@@ -217,7 +221,7 @@ namespace McMd
    {
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized");
-      }  
+      }
       accumulator_.clear(); 
    }
 
