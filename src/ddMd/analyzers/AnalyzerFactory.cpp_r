@@ -41,6 +41,7 @@
 #include "stress/StressAutoCorrelation.h"
 
 // Scattering analyzers
+#include "scattering/CollectiveVariable.h"
 #include "scattering/StructureFactor.h"
 #include "scattering/StructureFactorGrid.h"
 #include "scattering/VanHove.h"
@@ -136,6 +137,9 @@ namespace DdMd
          ptr = new StressAutoCorrelation(simulation());
       } else
       // Scattering
+      if (className == "CollectiveVariable") {
+         ptr = new CollectiveVariable(simulation());
+      } else
       if (className == "StructureFactor") {
          ptr = new StructureFactor(simulation());
       } else

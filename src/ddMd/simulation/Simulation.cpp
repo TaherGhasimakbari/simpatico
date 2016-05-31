@@ -1248,6 +1248,9 @@ namespace DdMd
             if (command == "OUTPUT_ANALYZERS") {
                analyzerManager().output();
             } else
+            if (command == "OUTPUT_MODIFIERS") {
+               modifierManager().output();
+            } else
             if (command == "OUTPUT_INTEGRATOR_STATS") {
                // Output statistics about time usage during simulation.
                integrator().computeStatistics();
