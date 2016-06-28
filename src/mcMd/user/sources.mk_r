@@ -1,7 +1,6 @@
 
 mcMd_user_=\
-    #mcMd/user/Class1.cpp \
-    #mcMd/user/Class2.cpp 
+    #mcMd/user/Averager.cpp 
 
 mcMd_user_SRCS=\
      $(addprefix $(SRC_DIR)/, $(mcMd_user_))

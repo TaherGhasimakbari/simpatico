@@ -167,7 +167,7 @@ namespace DdMd
       /**
       * This gives the modifiers an output option.
       */
-      void output(long iStep);
+      void output();
       //@} 
       
    private:

@@ -232,15 +232,15 @@ namespace DdMd
          ampStd = std::sqrt(amp2Avg-ampAvg*ampAvg);
          ampStd /= ampAvg;
 
-         for (int i = 0; i < grid_[0]; ++i) {
+         for (int i = 0; i <= grid_[0]; ++i) {
             dR0 = boundaryPtr->bravaisBasisVector(0);
             dR0 *= i;
             dR0 /= grid_[0];
-            for (int j = 0; j < grid_[1]; ++j) {
+            for (int j = 0; j <= grid_[1]; ++j) {
                dR1 = boundaryPtr->bravaisBasisVector(1);
                dR1 *= j;
                dR1 /= grid_[1];
-               for (int k = 0; k < grid_[2]; ++k) {
+               for (int k = 0; k <= grid_[2]; ++k) {
                   dR2 = boundaryPtr->bravaisBasisVector(2);
                   dR2 *= k;
                   dR2 /= grid_[2];
@@ -266,6 +266,7 @@ namespace DdMd
                }
             }
          }
+
          CVavg /= grid_[0]*grid_[1]*grid_[2];
 
          Vector Rmax;
@@ -282,7 +283,17 @@ namespace DdMd
          dR2 *= kmax;
          dR2 /= grid_[2];
          Rmax += dR2;
-         
+
+         std::cout<<Rmax[0]<<" "<<Rmax[1]<<" "<<Rmax[2]<<"\n\n";
+                  CV=0.0;
+                  for (int w = 0; w < nWave_; ++w) {
+                     std::cout<<totalFourier_[w]<<"\t\t";
+                     CV += exp(-Constants::Im*phases_[w])*exp(-Constants::Im*Rmax.dot(waveVectors_[w]))*totalFourier_[w];
+                     std::cout<<Rmax.dot(waveVectors_[w])<<"\t\t";
+                     std::cout<<exp(-Constants::Im*phases_[w])*exp(-Constants::Im*Rmax.dot(waveVectors_[w]))*totalFourier_[w]<<"\n";
+                  }
+std::cout<<"\n\n";
+std::cout<<"CVmax="<<CVmax/abs<<"\n\n";
 
          for (int i = -grid_[0]; i < grid_[0]; ++i) {
             dR0 = boundaryPtr->bravaisBasisVector(0);
@@ -367,6 +378,7 @@ namespace DdMd
             }
          }
 
+//std::cout<<"CVmax="<<CVmax/abs<<"\n\n";
          accumulatorUmax_.sample(CVmax);
          accumulatorNmax_.sample(CVmax/abs);
          accumulatorUavg_.sample(CVavg);

@@ -336,7 +336,7 @@ namespace DdMd
       }
    }
 
-   void ModifierManager::output(long iStep)
+   void ModifierManager::output()
    {
       Modifier* ptr;
       int n = output_.size();

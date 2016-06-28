@@ -87,6 +87,10 @@ namespace DdMd
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized.");
       }
+
+      if (simulation().domain().isMaster()) {
+         simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
+      }
    }
 
    /*
@@ -123,7 +127,6 @@ namespace DdMd
                array2_[iStep % mInterval_] = array1_[iStep % mInterval_] + (total(1,1)+total(2,2))/2.0-total(0,0);
             }     
 
-            simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
             outputFile_ << Int(iStep, 10) << std::endl;
             outputFile_.close();
          }
@@ -135,6 +138,7 @@ namespace DdMd
    */
    void StrainModulator::output()
    {
+      outputFile_.close();
       simulation().fileMaster().openOutputFile(outputFileName("_1.dat"), outputFile_);
       for (int i = 0; i < array1_.capacity(); i++) {
          outputFile_ << Int(i, 10) << array1_[i] << std::endl;

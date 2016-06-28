@@ -71,6 +71,9 @@ StressPP: $(MCSIM).o $(LIBS)
 StressMPI: $(MCSIM).o $(LIBS)
 	$(CXX) $(LDFLAGS) -o StressMPI user/stressPostProcessorMPI.o $(LIBS)
 
+Averager: $(MCSIM).o $(LIBS)
+	$(CXX) $(LDFLAGS) -o Averager user/Averager.o $(LIBS)
+
 # Short names for executable targets (for convenience)
  
 mcSim:

@@ -101,7 +101,7 @@ namespace DdMd
       std::string outputFileName_;
 
       /// Stress Measurement Interval
-      double  epsilon1_;
+      double  epsilonStart_;
 
       /// Stress Measurement Interval
       double  epsilonSlope_;

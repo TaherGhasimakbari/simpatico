@@ -24,6 +24,7 @@ namespace DdMd
    Ramper::Ramper(Simulation& simulation)
     : Modifier(simulation)
    {set(Flags::PreIntegrate1);
+    set(Flags::Setup);
     setClassName("Ramper");}
 
    /*
@@ -40,7 +41,7 @@ namespace DdMd
       // Read interval value (inherited from Interval)
       readInterval(in);
       read<std::string>(in, "outputFileName", outputFileName_);
-      read<double>(in,"epsilon1", epsilon1_);
+      read<double>(in,"epsilonStart", epsilonStart_);
       read<double>(in,"epsilonSlope", epsilonSlope_);
 
       isInitialized_ = true;
@@ -52,7 +53,7 @@ namespace DdMd
    void Ramper::loadParameters(Serializable::IArchive &ar)
    {
       loadParameter<std::string>(ar, "outputFileName", outputFileName_);
-      loadParameter(ar,"epsilon1", epsilon1_);
+      loadParameter(ar,"epsilonStart", epsilonStart_);
       loadParameter(ar,"epsilonSlope", epsilonSlope_);
 
       isInitialized_ = true;
@@ -84,6 +85,10 @@ namespace DdMd
       if (!isInitialized_) {
          UTIL_THROW("Object not initialized.");
       }
+
+      if (simulation().domain().isMaster()) {
+         simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
+      }
    }
 
    /*
@@ -93,14 +98,11 @@ namespace DdMd
    {
       if (isAtInterval(iStep)) {
 
-         double epsilon = epsilon1_ + epsilonSlope_*iStep;
+         double epsilon = epsilonStart_ + epsilonSlope_*iStep;
          simulation().pairPotential().set("epsilon", 0, 1, epsilon);
          
          if (simulation().domain().isMaster()) {
-
-            simulation().fileMaster().openOutputFile(outputFileName(".dat"), outputFile_);
-            outputFile_ << Int(iStep, 10) << Dbl(epsilon, 10) << std::endl;
-            outputFile_.close();
+            outputFile_ << Int(iStep, 15) << Dbl(epsilon, 20) << std::endl;
          }
       }
    }
