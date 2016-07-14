@@ -66,14 +66,16 @@ $(MCSIM_EXE): $(MCSIM).o $(LIBS)
 $(MDSIM_EXE): $(MDSIM).o $(LIBS)
 	$(CXX) $(LDFLAGS) -o $(MDSIM_EXE) $(MDSIM).o $(LIBS)
 
-StressPP: $(MCSIM).o $(LIBS)
+Averager = $(BLD_DIR)/mcMd/user/Averager
+
+$(StressPP): $(StressPP).o $(LIBS)
 	$(CXX) $(LDFLAGS) -o StressPP user/stressPostProcessor.o $(LIBS)
 
 StressMPI: $(MCSIM).o $(LIBS)
 	$(CXX) $(LDFLAGS) -o StressMPI user/stressPostProcessorMPI.o $(LIBS)
 
-Averager: $(MCSIM).o $(LIBS)
-	$(CXX) $(LDFLAGS) -o Averager user/Averager.o $(LIBS)
+$(Averager): $(Averager).o $(LIBS)
+	$(CXX) $(LDFLAGS) -o $(Averager) $(Averager).o $(LIBS)
 
 # Short names for executable targets (for convenience)
  
@@ -82,6 +84,9 @@ mcSim:
 
 mdSim:
 	$(MAKE) $(MDSIM_EXE)
+
+Averager:
+	$(MAKE) $(Averager)
 
 #-----------------------------------------------------------------------
 # Include dependency files

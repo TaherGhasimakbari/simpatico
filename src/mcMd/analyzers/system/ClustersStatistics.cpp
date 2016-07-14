@@ -70,7 +70,7 @@ namespace McMd
       }
       int nMolecule = speciesPtr_->capacity();
 
-      clusters_.allocate(nMolecule);
+      //clusters_.allocate(nMolecule);
       for (int i = 0; i < nMolecule; ++i) {
           clusters_[i].self_ = 0;
           clusters_[i].clusterId_ = -1;
@@ -112,7 +112,7 @@ namespace McMd
       }
 
       int nMolecule = speciesPtr_->capacity();
-      clusters_.allocate(nMolecule);
+      //clusters_.allocate(nMolecule);
       clusterLengths_.reserve(nMolecule);
 
       loadParameter<int>(ar,"histMin", histMin_);
@@ -136,7 +136,7 @@ namespace McMd
    {
       int nMolecule = system().nMolecule(speciesId_);
       int nAtom = nMolecule * speciesPtr_->nAtom();
-      cellList_.allocate(nAtom, system().boundary(), cutoff_);
+      //cellList_.allocate(nAtom, system().boundary(), cutoff_);
       nSample_ = 0;
 
       System::MoleculeIterator molIter;                                             // Loading cellList with atoms.

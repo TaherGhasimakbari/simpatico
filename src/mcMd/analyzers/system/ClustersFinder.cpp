@@ -51,7 +51,7 @@ namespace McMd
    {  
       int nMolecule = system().nMolecule(speciesId_);
       int nAtom = nMolecule * speciesPtr_->nAtom();
-      cellList_.allocate(nAtom, system().boundary(), cutoff_);
+      //cellList_.allocate(nAtom, system().boundary(), cutoff_);
       nSample_ = 0;
       if (!isInitialized_) UTIL_THROW("Object is not initialized");
    }
